@@ -1,1 +1,9 @@
 @import '~bootstrap/scss/bootstrap';
+
+$page-background: #aaa;
+$text-color: #000;
+
+body {
+  background: $page-background;
+  color: $text-color;
+}

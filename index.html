@@ -1,17 +1,75 @@
 <!DOCTYPE html>
 <html>
     <head>
-      <title>Example</title>
+      <title>PixelKnights</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
-
       <!-- Do not add `link` tags-->
       <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-
       <!-- Do not add `script` tags-->
       <script src="public/vendor.js" type="text/javascript" charset="utf-8" defer></script>
       <script src="public/application.js" type="text/javascript" charset="utf-8" defer></script>
     </head>
     <body>
-      <h1>Browser Template</h1>
+      <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">PixelKnights</a>
+          </div>
+          <span id="user-message"> </span>
+          <div class="float-right">
+            <span id="unauthed-buttons">
+              <button id="show-sign-up-button" class='btn btn-danger navbar-btn float-right'> Sign Up </button>
+              <button id="show-sign-in-button" class="btn btn-danger navbar-btn navbar-btn float-right">Login</button>
+            </span>
+            <span id="authed-buttons">
+              <button id="show-ch-pwd-button" class="btn navbar-btn btn-danger"> Change Password</button>
+              <button id="sign-out-button" class="btn btn-danger navbar-btn"> Sign Out </button>
+            </span>
+          </div>
+        </div>
+      </nav>
+
+      <div id="sign-in-box" class="container">
+        <form id="sign-in-form" class='form-inline'>
+          <legend> Sign In </legend>
+          <input id="sign-in-email" type="email" class="form-control"  name="credentials[email]" required placeholder="Email">
+          <input id="sign-in-pwd" name="credentials[password]"type="password" class="form-control" required placeholder="Password">
+          <button type="submit"  name="sign-in" class='btn btn-danger'> Sign In
+          </button>
+          <button id="cancel-sign-in-button" class="btn btn-danger navbar-btn"> Cancel </button>
+        </form>
+      </div>
+
+      <div id="sign-up-box" class="container">
+        <form id="sign-up-form" class="form-inline">
+          <legend> Create User </legend>
+          <input id="sign-up-email" name="credentials[email]" type="email" required placeholder="Email" class="form-control"/>
+          <input id="sign-up-pwd" name="credentials[password]" type="password" required placeholder="Password" class="form-control"/>
+          <input id="sign-up-pwd-conf" name="credentials[password_confirmation]" type="password" placeholder="Confirm Password" class="form-control"/>
+          <button type="submit"  name="sign-up" class='btn btn-danger'> Sign Up </button>
+          <button id="cancel-sign-up-button" class="btn btn-danger navbar-btn"> Cancel </button>
+        </form>
+      </div>
+
+      <div id="ch-pwd-box" class="container">
+        <form id="change-password-form" class="form-inline">
+          <legend> Change Password </legend>
+          <input id="change-pwd-old" name="passwords[old]" type="password" required placeholder="Old Password" class="form-control"/>
+          <input id="change-pwd-new" name="passwords[new]" type="password" required placeholder="New Password" class="form-control"/>
+          <button type="submit"  name="sign-up" class='btn btn-danger'> Change </button>
+          <button id="cancel-ch-pwd-button" class="btn btn-danger navbar-btn"> Cancel </button>
+        </form>
+      </div>
+
+      <br />
+      <div id=auth_messages class="message"></div>
+      <br />
+
+
+      <div id="game" class="cont">
+        <div id="game-board" class="cont"></div>
+        <div id="game-messages" class="container"></div>
+        <div id="game-buttons" class=container></div>
+      </div>
     </body>
 </html>
