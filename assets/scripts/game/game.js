@@ -1,9 +1,28 @@
 'use strict'
 
-// const store = require('../store.js')
+const store = require('../store.js')
 const Tile = require('./tile.js')
 
-const MODS = [{row: -1, col: 0}, {row: 1, col: 0}, {row: 0, col: -1}, {row: 0, col: 1}]
+const MODS = [
+  {row: -1, col: 0},
+  {row: 1, col: 0},
+  {row: 0, col: -1},
+  {row: 0, col: 1}
+]
+
+const ADJ = [
+  {row: -1, col: -1},
+  {row: -1, col: 0},
+  {row: -1, col: 1},
+  {row: 0, col: -1},
+  {row: 0, col: 0},
+  {row: 0, col: 1},
+  {row: 1, col: -1},
+  {row: 1, col: 0},
+  {row: 1, col: 1}
+]
+
+// console.log(ADJ)
 
 class Game {
   constructor (size) {
@@ -79,14 +98,16 @@ class Game {
       }
     }
 
-    this.testPath()
-    this.drawPath()
-    console.log(this.finish.dist)
+    if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
+      console.error('ERROR: Maze Generation, no path exists')
+      this.generateMaze()
+    }
   }
 
-  testPath () {
-    this.maze[1][1].dist = 0
+  dijkstrasSolver (start = this.start) {
+    start.dist = 0
     const q = []
+
     for (let row = 1; row < this.ySize - 1; row++) {
       for (let col = 1; col < this.xSize - 1; col++) {
         if (this.maze[row][col].content !== 'wall') {
@@ -115,6 +136,17 @@ class Game {
       }
 
       q.splice(idx, 1) // remove from q
+    }
+  }
+
+  testPath (end = this.finish) {
+    this.dijkstrasSolver()
+    store.lastPath = 'testPath'
+    if (end.dist < Infinity) {
+      this.drawPath()
+      return true
+    } else {
+      return false
     }
   }
 

@@ -1,7 +1,7 @@
 'use strict'
 
 const store = require('../store.js')
-const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path']
+const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter']
 
 class Tile {
   constructor (row, col) {
@@ -31,9 +31,8 @@ class Tile {
   }
 
   updateRender () {
-    for (let i = 0; i < ALLOWEDFILLS.length; i++) {
-      $(`#${this.id}`).removeClass(ALLOWEDFILLS[i])
-    }
+    $(`#${this.id}`).removeClass()
+    $(`#${this.id}`).addClass('game-tile')
     $(`#${this.id}`).addClass(this.content)
   }
 }
