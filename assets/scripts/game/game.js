@@ -1,5 +1,6 @@
 'use strict'
 
+const state = require('../states.js')
 const store = require('../store.js')
 const Tile = require('./tile.js')
 let reset = 0
@@ -156,7 +157,7 @@ class Game {
     this.dijkstrasSolver()
     store.lastPath = 'testPath'
     if (end.dist < Infinity) {
-      this.drawPath()
+      // this.drawPath()
       return true
     } else {
       return false
@@ -200,20 +201,25 @@ class Game {
       default:
         console.error('Unsupported key event passed')
     }
+    if (state.playing()) {
+      const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
+      if (test.inBounds && test.fill !== 'wall') {
+        this.player.setFill('empty')
+        this.player = test
+        this.player.setFill('player')
+      } else {
+        console.error('Move not valid')
+      }
+    }
 
-    const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
-    if (test.inBounds && test.fill !== 'wall') {
-      this.player.setFill('empty')
-      this.player = test
-      this.player.setFill('player')
-    } else {
-      console.error('Move not valid')
+    if (this.player === this.finish) {
+      console.error('Game Over')
+      state.setGameState(2)
     }
   }
 
   drawKey () {
     const keySrc = '../../../public/key.png'
-    this.maze[10][10].setFill('empty')
     const test = (
       `<img src="${keySrc}" alt="Key" class="sprite">`
     )

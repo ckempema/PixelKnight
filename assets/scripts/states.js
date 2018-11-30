@@ -36,15 +36,30 @@ const resetFormFields = () => {
 
 const setGameState = (newState) => {
   switch (newState) {
-    case 0: // No Game Play
+    case 0: // Playing
+      current.gameState = 0
       break
 
-    case 1: // Logged in
+    case 1: // Paused
+      current.gameState = 1
       break
+
+    case 2: // Finished
+      current.gameState = 2
+      break
+  }
+}
+
+const playing = () => {
+  if (current.gameState === 0) {
+    return true
+  } else {
+    return false
   }
 }
 module.exports = {
   current,
   setAuthState,
-  setGameState
+  setGameState,
+  playing
 }
