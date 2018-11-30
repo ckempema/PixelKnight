@@ -2,15 +2,16 @@
 
 const store = require('../store.js')
 const Tile = require('./tile.js')
+let reset = 0
 
-const MODS = [
+const ADJACENT = [
   {row: -1, col: 0},
   {row: 1, col: 0},
   {row: 0, col: -1},
   {row: 0, col: 1}
 ]
 
-const ADJ = [
+const ALL_ADJ = [
   {row: -1, col: -1},
   {row: -1, col: 0},
   {row: -1, col: 1},
@@ -29,6 +30,7 @@ class Game {
     this.xSize = size + 2
     this.ySize = size + 2
     this.maze = []
+    this.mazeGenWeight = 10
     this.initBoard()
   }
 
@@ -66,8 +68,8 @@ class Game {
 
     let walls = []
     const addWalls = (row, col) => {
-      for (let i = 0; i < MODS.length; i++) {
-        const test = this.maze[row + MODS[i].row][col + MODS[i].col]
+      for (let i = 0; i < ADJACENT.length; i++) {
+        const test = this.maze[row + ADJACENT[i].row][col + ADJACENT[i].col]
         if (test.inBounds) {
           if (!walls.includes(test)) {
             walls.push(test)
@@ -84,15 +86,16 @@ class Game {
     while (walls.length > 0) {
       curr = walls[Math.floor(Math.random() * walls.length)] // Random wall
       walls = walls.filter((e) => { return e !== curr }) // Remove from walls]
+
       let count = 0 // count of active neighbors
-      for (let i = 0; i < MODS.length; i++) {
-        const test = this.maze[curr.row + MODS[i].row][curr.col + MODS[i].col]
+      for (let i = 0; i < ALL_ADJ.length; i++) {
+        const test = this.maze[curr.row + ALL_ADJ[i].row][curr.col + ALL_ADJ[i].col]
         if (test.content !== 'wall') {
           count += 1
         }
       }
 
-      if (curr.content === 'wall' && count <= 2) {
+      if (curr.content === 'wall' && count <= this.mazeGenWeight) {
         curr.setFill('empty')
         addWalls(curr.row, curr.col)
       }
@@ -100,7 +103,12 @@ class Game {
 
     if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
       console.error('ERROR: Maze Generation, no path exists')
-      this.generateMaze()
+      reset += 1
+      if (reset >= 10) {
+        throw new Error()
+      } else {
+        this.generateMaze()
+      }
     }
   }
 
@@ -127,8 +135,8 @@ class Game {
       }
 
       const curr = q[idx]
-      for (let i = 0; i < MODS.length; i++) {
-        const test = this.maze[curr.row + MODS[i].row][curr.col + MODS[i].col]
+      for (let i = 0; i < ADJACENT.length; i++) {
+        const test = this.maze[curr.row + ADJACENT[i].row][curr.col + ADJACENT[i].col]
         if (curr.dist + 1 < test.dist) {
           test.dist = curr.dist + 1
           test.prev = curr
