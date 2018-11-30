@@ -181,6 +181,13 @@ class Game {
     switch (key) {
       case 32: // Space
         console.log('space')
+        if (state.playing()) {
+          state.setGameState(1)
+          console.log('paused')
+        } else {
+          state.setGameState(0)
+          console.log('unpaused')
+        }
         break
       case 37: // left
         console.log('left')

@@ -11,10 +11,6 @@ const createGame = () => {
   store.game.generatePseudoPrimMaze(3)
   store.game.renderBoard()
 
-  // setInterval(() => {
-  //   store.game.generatePseudoPrimMaze(2)
-  //   store.game.renderBoard()
-  // }, 5000)
   store.game.drawKey()
 }
 
