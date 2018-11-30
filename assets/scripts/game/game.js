@@ -44,14 +44,17 @@ class Game {
       this.maze.push(rowBin)
     }
 
-    const randPoint = () => {
-      return Math.floor(Math.random() * 30)
-    }
-    this.start = this.maze[randPoint()][randPoint()]
-    this.finish = this.maze[randPoint()][randPoint()]
+    this.start = this.maze[this.randPoint()][this.randPoint()]
+    this.finish = this.maze[this.randPoint()][this.randPoint()]
     this.player = this.start
     this.player.setFill('player')
     this.finish.setFill('finish')
+    this.hunter = this.maze[this.randPoint()][this.randPoint()]
+    this.hunter.setFill('hunter')
+  }
+
+  randPoint () {
+    return 1 + Math.floor(Math.random() * 30)
   }
 
   renderBoard () {
@@ -230,8 +233,38 @@ class Game {
     const test = (
       `<img src="${keySrc}" alt="Key" class="sprite">`
     )
-    $('#game-box-10-10').append(test)
+    const row = this.randPoint()
+    const col = this.randPoint()
+    $(`#game-box-${row}-${col}`).append(test)
     console.log('Key drawn')
+  }
+
+  moveHunterRandom () {
+    const hunterSrc = '../../../public/hunter.png'
+    const img = (
+      `<img src="${hunterSrc}" alt="Key" class="sprite">`
+    )
+    let done = false
+    let count = 0
+    if (state.playing()) {
+      while (!done) {
+        const mod = ADJACENT[Math.floor(Math.random() * 4)]
+        const row = this.hunter.row + mod.row
+        const col = this.hunter.col + mod.col
+        if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
+          this.hunter.setFill('empty')
+          $(`#${this.hunter.id}`).html('') // remove image
+          this.hunter = this.maze[row][col]
+          $(`#${this.hunter.id}`).append(img)
+          done = true
+        } else {
+          count += 1
+          if (count >= 20) {
+            done = true
+          }
+        }
+      }
+    }
   }
 }
 

@@ -20,6 +20,11 @@ li {
   padding: 0;
 }
 
+img {
+  margin: 0;
+  padding: 0;
+}
+
 .game-tile {
   // border: .5px solid $black;
   display: inline-block;
@@ -53,6 +58,10 @@ li {
 
 .sprite {
   margin: auto;
+}
+
+.hunter {
+  padding: 2px;
 }
 
 .outerbox {

@@ -12,6 +12,10 @@ const createGame = () => {
   store.game.renderBoard()
 
   store.game.drawKey()
+
+  setInterval(() => {
+    store.game.moveHunterRandom()
+  }, 500)
 }
 
 const handleKeyPress = (key) => {

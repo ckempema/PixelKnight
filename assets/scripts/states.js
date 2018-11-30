@@ -57,6 +57,7 @@ const playing = () => {
     return false
   }
 }
+
 module.exports = {
   current,
   setAuthState,
