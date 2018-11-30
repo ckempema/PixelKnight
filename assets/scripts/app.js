@@ -2,10 +2,11 @@
 
 const authEvents = require('./auth/events.js')
 const state = require('./states.js')
-const logic = require('./game/gameLogic.js')
+const logic = require('./game/logic.js')
 
 $(() => {
   initAuthEventListeners()
+  initKeyPressEvents()
   state.setAuthState(0)
   logic.createGame()
 })
@@ -33,5 +34,15 @@ const initAuthEventListeners = () => {
   $('#cancel-ch-pwd-button').on('click', () => {
     $('#ch-pwd-box').hide()
     $('#change-password-form').trigger('reset')
+  })
+}
+
+const initKeyPressEvents = () => {
+  const reserved = [32, 37, 38, 39, 40]
+  $(document).keydown((key) => {
+    if (reserved.includes(key.which)) {
+      key.preventDefault()
+      logic.handleKeyPress(key.which)
+    }
   })
 }

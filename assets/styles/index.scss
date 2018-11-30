@@ -3,7 +3,7 @@
 $page-background: #fff;
 $text-color: #000;
 $black: #000;
-$gray: #bbb;
+$gray: #fff;
 
 body {
   background: $page-background;
@@ -36,15 +36,23 @@ li {
 }
 
 .start {
-  background-color: $green;
+  background-color: $yellow;
 }
 
 .finish {
   background-color: $red;
 }
 
+.player {
+  background-color: $green;
+}
+
 .path {
   background-color: $blue;
+}
+
+.sprite {
+  margin: auto;
 }
 
 .outerbox {

@@ -30,11 +30,10 @@ class Game {
     this.xSize = size + 2
     this.ySize = size + 2
     this.maze = []
-    this.mazeGenWeight = 10
     this.initBoard()
   }
 
-  initBoard (start = {row: 1, col: 1}, end = {row: 30, col: 30}) {
+  initBoard () {
     this.maze = []
     for (let row = 0; row < this.ySize + 2; row++) {
       const rowBin = []
@@ -44,9 +43,13 @@ class Game {
       this.maze.push(rowBin)
     }
 
-    this.start = this.maze[start.row][start.col]
-    this.finish = this.maze[end.row][end.col]
-    this.start.setFill('start')
+    const randPoint = () => {
+      return Math.floor(Math.random() * 30)
+    }
+    this.start = this.maze[randPoint()][randPoint()]
+    this.finish = this.maze[randPoint()][randPoint()]
+    this.player = this.start
+    this.player.setFill('player')
     this.finish.setFill('finish')
   }
 
@@ -63,7 +66,7 @@ class Game {
     }
   }
 
-  generateMaze () {
+  generatePseudoPrimMaze (weight) {
     this.initBoard()
 
     let walls = []
@@ -90,12 +93,12 @@ class Game {
       let count = 0 // count of active neighbors
       for (let i = 0; i < ALL_ADJ.length; i++) {
         const test = this.maze[curr.row + ALL_ADJ[i].row][curr.col + ALL_ADJ[i].col]
-        if (test.content !== 'wall') {
+        if (test.fill !== 'wall') {
           count += 1
         }
       }
 
-      if (curr.content === 'wall' && count <= this.mazeGenWeight) {
+      if (curr.fill === 'wall' && count <= weight) {
         curr.setFill('empty')
         addWalls(curr.row, curr.col)
       }
@@ -107,8 +110,10 @@ class Game {
       if (reset >= 10) {
         throw new Error()
       } else {
-        this.generateMaze()
+        this.generatePseudoPrimMaze()
       }
+    } else {
+      reset = 0
     }
   }
 
@@ -118,7 +123,7 @@ class Game {
 
     for (let row = 1; row < this.ySize - 1; row++) {
       for (let col = 1; col < this.xSize - 1; col++) {
-        if (this.maze[row][col].content !== 'wall') {
+        if (this.maze[row][col].fill !== 'wall') {
           q.push(this.maze[row][col])
         }
       }
@@ -168,6 +173,52 @@ class Game {
     } else {
       console.log('Invalid Path') // NOTE: Fix console.log
     }
+  }
+
+  keyPress (key) {
+    let mod
+    switch (key) {
+      case 32: // Space
+        console.log('space')
+        break
+      case 37: // left
+        console.log('left')
+        mod = {row: 0, col: -1}
+        break
+      case 38: // up
+        console.log('up')
+        mod = {row: -1, col: 0}
+        break
+      case 39: // right
+        console.log('right')
+        mod = {row: 0, col: 1}
+        break
+      case 40: // down
+        console.log('down')
+        mod = {row: 1, col: 0}
+        break
+      default:
+        console.error('Unsupported key event passed')
+    }
+
+    const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
+    if (test.inBounds && test.fill !== 'wall') {
+      this.player.setFill('empty')
+      this.player = test
+      this.player.setFill('player')
+    } else {
+      console.error('Move not valid')
+    }
+  }
+
+  drawKey () {
+    const keySrc = '../../../public/key.png'
+    this.maze[10][10].setFill('empty')
+    const test = (
+      `<img src="${keySrc}" alt="Key" class="sprite">`
+    )
+    $('#game-box-10-10').append(test)
+    console.log('Key drawn')
   }
 }
 

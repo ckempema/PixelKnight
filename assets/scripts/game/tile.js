@@ -5,7 +5,7 @@ const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hun
 
 class Tile {
   constructor (row, col) {
-    this.content = 'wall'
+    this.fill = 'wall'
     this.row = row
     this.col = col
     this.id = `game-box-${row}-${col}`
@@ -16,24 +16,24 @@ class Tile {
 
   renderHTML () {
     const tileHTML = (`
-      <div id=${this.id} class="game-tile ${this.content}"></div>
+      <div id=${this.id} class="game-tile ${this.fill}"></div>
       `)
     return tileHTML
   }
 
   setFill (newFill) {
     if (ALLOWEDFILLS.includes(newFill)) {
-      this.content = newFill
+      this.fill = newFill
       this.updateRender()
     } else {
-      console.log('Invalid fill sent to tile.setFill', newFill, `Location X${this.row}, Y${this.col}`) // NOTE: Remove
+      console.error('Invalid fill sent to tile.setFill', newFill, `Location X${this.row}, Y${this.col}`) // NOTE: Remove
     }
   }
 
   updateRender () {
     $(`#${this.id}`).removeClass()
     $(`#${this.id}`).addClass('game-tile')
-    $(`#${this.id}`).addClass(this.content)
+    $(`#${this.id}`).addClass(this.fill)
   }
 }
 
