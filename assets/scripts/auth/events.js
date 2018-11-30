@@ -15,6 +15,20 @@ const onSignUp = (event) => {
 const onSignIn = (event) => {
   event.preventDefault()
   const data = getFormFields(event.target)
+  console.log(data)
+  api.signIn(data)
+    .then(ui.signInSuccess)
+    .catch(ui.failure)
+}
+
+const onGuestSignIn = (event) => {
+  event.preventDefault()
+  const data = { // HACK: Adjust login credentials or adjust to remove show of credentials in ui.signInSuccess for guest login
+    credentials: {
+      email: 'test@c.co',
+      password: 'test'
+    }
+  }
   api.signIn(data)
     .then(ui.signInSuccess)
     .catch(ui.failure)
@@ -38,6 +52,7 @@ const onSignOut = (event) => {
 module.exports = {
   onSignUp,
   onSignIn,
+  onGuestSignIn,
   onChangePassword,
   onSignOut
 }

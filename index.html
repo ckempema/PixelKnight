@@ -20,6 +20,7 @@
             <span id="unauthed-buttons">
               <button id="show-sign-up-button" class='btn btn-danger navbar-btn float-right'> Sign Up </button>
               <button id="show-sign-in-button" class="btn btn-danger navbar-btn navbar-btn float-right">Login</button>
+              <button id="guest-button" class='btn btn-danger navbar-btn float-right'> Guest</button>
             </span>
             <span id="authed-buttons">
               <button id="show-ch-pwd-button" class="btn navbar-btn btn-danger"> Change Password</button>
@@ -32,7 +33,7 @@
       <div id="sign-in-box" class="container">
         <form id="sign-in-form" class='form-inline'>
           <legend> Sign In </legend>
-          <input id="sign-in-email" type="email" class="form-control"  name="credentials[email]" required placeholder="Email">
+          <input id="sign-in-email" type="text" class="form-control"  name="credentials[email]" required placeholder="Email">
           <input id="sign-in-pwd" name="credentials[password]"type="password" class="form-control" required placeholder="Password">
           <button type="submit"  name="sign-in" class='btn btn-danger'> Sign In
           </button>
@@ -43,7 +44,7 @@
       <div id="sign-up-box" class="container">
         <form id="sign-up-form" class="form-inline">
           <legend> Create User </legend>
-          <input id="sign-up-email" name="credentials[email]" type="email" required placeholder="Email" class="form-control"/>
+          <input id="sign-up-email" name="credentials[email]" type="text" required placeholder="Email" class="form-control"/>
           <input id="sign-up-pwd" name="credentials[password]" type="password" required placeholder="Password" class="form-control"/>
           <input id="sign-up-pwd-conf" name="credentials[password_confirmation]" type="password" placeholder="Confirm Password" class="form-control"/>
           <button type="submit"  name="sign-up" class='btn btn-danger'> Sign Up </button>
@@ -67,7 +68,8 @@
 
 
       <div id="game" class="cont">
-        <div id="game-board" class="cont"></div>
+        <div id="game-board" class="container outerbox"></div>
+        <br />
         <div id="game-messages" class="container"></div>
         <div id="game-buttons" class=container></div>
       </div>

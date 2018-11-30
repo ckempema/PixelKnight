@@ -2,15 +2,18 @@
 
 const authEvents = require('./auth/events.js')
 const state = require('./states.js')
+const logic = require('./game/gameLogic.js')
 
 $(() => {
   initAuthEventListeners()
   state.setAuthState(0)
+  logic.createGame()
 })
 
 const initAuthEventListeners = () => {
   $('#sign-up-form').on('submit', authEvents.onSignUp)
   $('#sign-in-form').on('submit', authEvents.onSignIn)
+  $('#guest-button').on('click', authEvents.onGuestSignIn)
   $('#change-password-form').on('submit', authEvents.onChangePassword)
   $('#sign-out-button').on('click', authEvents.onSignOut)
 

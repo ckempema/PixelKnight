@@ -1,9 +1,57 @@
 @import '~bootstrap/scss/bootstrap';
 
-$page-background: #aaa;
+$page-background: #fff;
 $text-color: #000;
+$black: #000;
+$gray: #bbb;
 
 body {
   background: $page-background;
   color: $text-color;
+}
+
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+.game-tile {
+  // border: .5px solid $black;
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+}
+
+.empty {
+  background-color: $gray;
+}
+
+.wall {
+  background-color: $black;
+}
+
+.start {
+  background-color: $green;
+}
+
+.finish {
+  background-color: $red;
+}
+
+.path {
+  background-color: $blue;
+}
+
+.outerbox {
+  //border: .5px solid $black;
+
+  justify-content: center;
+  margin: auto;
+  min-height: 642px;
+  min-width: 642px;
 }
