@@ -3,7 +3,7 @@
 const store = require('../store.js')
 const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key']
 
-const IMAGED = ['player', 'hunter', 'key']
+const IMAGED = ['player', 'hunter','key']
 
 class Tile {
   constructor (row, col) {
@@ -47,7 +47,6 @@ class Tile {
       const img = (
         `<img src="../../../public/${this.fill}.png" alt="Key" class="sprite">`
       )
-      console.log(this.fill, this.row, this.col)
       $(`#${this.id}`).html(img)
       $(`#${this.id}`).addClass('game-tile')
       $(`#${this.id}`).addClass('sprite')

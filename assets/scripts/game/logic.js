@@ -14,13 +14,14 @@ const createGame = () => {
   }, 1000)
 
   setInterval(() => {
-    store.game.moveHunterRandom()
-  }, 500)
+    store.game.hunt()
+  }, 750)
 }
 
 const handleKeyPress = (key) => {
   store.game.keyPress(key)
 }
+
 module.exports = {
   createGame,
   handleKeyPress

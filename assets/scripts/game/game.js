@@ -2,14 +2,16 @@
 
 const state = require('../states.js')
 const store = require('../store.js')
+
 const Tile = require('./tile.js')
+const Hunter = require('./hunter.js')
 let reset = 0
 
 const ADJACENT = [
-  {row: -1, col: 0},
-  {row: 1, col: 0},
-  {row: 0, col: -1},
-  {row: 0, col: 1}
+  {row: -1, col: 0}, //down
+  {row: 1, col: 0}, //up
+  {row: 0, col: -1}, //left
+  {row: 0, col: 1} //right
 ]
 
 const ALL_ADJ = [
@@ -49,8 +51,10 @@ class Game {
     this.player = this.start
     this.player.setFill('player')
     this.finish.setFill('finish')
-    this.hunter = this.maze[this.randPoint()][this.randPoint()]
-    this.hunter.setFill('hunter')
+    this.hunters = []
+    for (let i = 0; i < 1; i++) {
+      this.hunters.push(new Hunter(this.maze[this.randPoint()][this.randPoint()]))
+    }
   }
 
   randPoint () {
@@ -183,29 +187,29 @@ class Game {
     let mod
     switch (key) {
       case 32: // Space
-        console.log('space')
+        // console.log('space')
         if (state.playing()) {
           state.setGameState(1)
-          console.log('paused')
+          // console.log('paused')
         } else {
           state.setGameState(0)
-          console.log('unpaused')
+          // console.log('unpaused')
         }
         break
       case 37: // left
-        console.log('left')
+        // console.log('left')
         mod = {row: 0, col: -1}
         break
       case 38: // up
-        console.log('up')
+        // console.log('up')
         mod = {row: -1, col: 0}
         break
       case 39: // right
-        console.log('right')
+        // console.log('right')
         mod = {row: 0, col: 1}
         break
       case 40: // down
-        console.log('down')
+        // console.log('down')
         mod = {row: 1, col: 0}
         break
       default:
@@ -228,25 +232,68 @@ class Game {
     }
   }
 
-  moveHunterRandom () {
+  moveHunters () {
+    console.log(this.hunters)
     let done = false
     let count = 0
     if (state.playing()) {
-      while (!done) {
-        const mod = ADJACENT[Math.floor(Math.random() * 4)]
-        const row = this.hunter.row + mod.row
-        const col = this.hunter.col + mod.col
-        if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
-          this.hunter.setFill('empty')
-          $(`#${this.hunter.id}`).html('') // remove image
-          this.hunter = this.maze[row][col]
-          done = true
-        } else {
-          count += 1
-          if (count >= 20) {
+      for (let i = 0; i < this.hunters.length; i++) {
+        const hunter = this.hunters[i]
+        console.log(hunter)
+        while (!done) {
+          let mod
+          switch (hunter.direction) {
+            case 'up':
+              mod = ADJACENT[1]
+              break
+            case 'down':
+              mod = ADJACENT[0]
+              break
+            case 'left':
+              mod = ADJACENT[2]
+              break
+            case 'right':
+              mod = ADJACENT[3]
+              break
+            default:
+              mod = null
+              console.error('Invalid Hunter Direction')
+          }
+          const row = hunter.row + mod.row
+          const col = hunter.col + mod.col
+
+          if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
+            hunter.clearTile()
+            hunter.setHunterTile(this.maze[row][col])
             done = true
+          } else {
+            hunter.setDirection()
+            count += 1
+            if (count >= 20) {
+              done = true
+            }
           }
         }
+      }
+    }
+  }
+
+  hunt () {
+    for (let i = 0; i < this.hunters.length; i++) {
+      console.log('hunting', i)
+      const hunter = this.hunters[i]
+      this.dijkstrasSolver(hunter.tile)
+      if (this.player.dist < Infinity) { // if path exists
+        let next = this.player.prev
+        let curr = this.player
+
+        while (next !== hunter.tile && next !== null) { // run path backwards to find next move
+          curr = next
+          next = curr.prev
+        }
+        console.log('moving', i)
+        hunter.clearTile()
+        hunter.setHunterTile(curr)
       }
     }
   }
