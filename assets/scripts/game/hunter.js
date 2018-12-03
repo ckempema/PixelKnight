@@ -18,7 +18,7 @@ class Hunter {
   }
 
   clearTile () {
-    this.tile.setFill('empty')
+    this.tile.setFill('start')
     $(`#${this.tile.id}`).html('') // remove image
   }
 

@@ -42,7 +42,6 @@ class Tile {
   }
 
   updateRender () {
-    $(`#${this.id}`).removeClass()
     if (IMAGED.includes(this.fill)) {
       const img = (
         `<img src="../../../public/${this.fill}.png" alt="Key" class="sprite">`
@@ -51,6 +50,7 @@ class Tile {
       $(`#${this.id}`).addClass('game-tile')
       $(`#${this.id}`).addClass('sprite')
     } else {
+      $(`#${this.id}`).removeClass()
       $(`#${this.id}`).addClass('game-tile')
       $(`#${this.id}`).addClass(this.fill)
       $(`#${this.id}`).html('')

@@ -8,10 +8,10 @@ const Hunter = require('./hunter.js')
 let reset = 0
 
 const ADJACENT = [
-  {row: -1, col: 0}, //down
-  {row: 1, col: 0}, //up
-  {row: 0, col: -1}, //left
-  {row: 0, col: 1} //right
+  {row: -1, col: 0}, // down
+  {row: 1, col: 0}, // up
+  {row: 0, col: -1}, // left
+  {row: 0, col: 1} // right
 ]
 
 const ALL_ADJ = [
@@ -52,7 +52,7 @@ class Game {
     this.player.setFill('player')
     this.finish.setFill('finish')
     this.hunters = []
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 3; i++) {
       this.hunters.push(new Hunter(this.maze[this.randPoint()][this.randPoint()]))
     }
   }
@@ -125,18 +125,20 @@ class Game {
     // }
   }
 
-  dijkstrasSolver (start = this.start) {
-    start.dist = 0
+  dijkstrasSolver (startPoint) {
     const q = []
 
     for (let row = 1; row < this.ySize - 1; row++) {
       for (let col = 1; col < this.xSize - 1; col++) {
         if (this.maze[row][col].fill !== 'wall') {
+          this.maze[row][col].dist = Infinity
+          this.maze[row][col].prev = null
           q.push(this.maze[row][col])
         }
       }
     }
 
+    startPoint.dist = 0
     while (q.length > 0) {
       let lowest = q[0].dist
       let idx = 0
@@ -161,7 +163,7 @@ class Game {
   }
 
   testPath (end = this.finish) {
-    this.dijkstrasSolver()
+    this.dijkstrasSolver(this.start)
     store.lastPath = 'testPath'
     if (end.dist < Infinity) {
       // this.drawPath()
@@ -171,9 +173,9 @@ class Game {
     }
   }
 
-  drawPath () {
-    if (this.finish.dist < Infinity) {
-      let curr = this.finish.prev
+  drawPath (tile) {
+    if (tile.dist < Infinity) {
+      let curr = tile.prev
       while (curr.prev !== null && curr !== this.start) {
         curr.setFill('path')
         curr = curr.prev
@@ -187,6 +189,7 @@ class Game {
     let mod
     switch (key) {
       case 32: // Space
+        console.log(this.maze)
         // console.log('space')
         if (state.playing()) {
           state.setGameState(1)
@@ -195,7 +198,7 @@ class Game {
           state.setGameState(0)
           // console.log('unpaused')
         }
-        break
+        return true
       case 37: // left
         // console.log('left')
         mod = {row: 0, col: -1}
@@ -218,7 +221,7 @@ class Game {
     if (state.playing()) {
       const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
       if (test.inBounds && test.fill !== 'wall') {
-        this.player.setFill('empty')
+        this.player.setFill('path')
         this.player = test
         this.player.setFill('player')
       } else {
@@ -232,46 +235,24 @@ class Game {
     }
   }
 
-  moveHunters () {
-    console.log(this.hunters)
-    let done = false
-    let count = 0
+  moveHunterRandom (hunter) {
     if (state.playing()) {
-      for (let i = 0; i < this.hunters.length; i++) {
-        const hunter = this.hunters[i]
-        console.log(hunter)
-        while (!done) {
-          let mod
-          switch (hunter.direction) {
-            case 'up':
-              mod = ADJACENT[1]
-              break
-            case 'down':
-              mod = ADJACENT[0]
-              break
-            case 'left':
-              mod = ADJACENT[2]
-              break
-            case 'right':
-              mod = ADJACENT[3]
-              break
-            default:
-              mod = null
-              console.error('Invalid Hunter Direction')
-          }
-          const row = hunter.row + mod.row
-          const col = hunter.col + mod.col
+      let done = false
+      let count = 0
+      while (!done) {
+        const mod = ADJACENT[Math.floor(Math.random() * 4)]
+        const row = hunter.row + mod.row
+        const col = hunter.col + mod.col
 
-          if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
-            hunter.clearTile()
-            hunter.setHunterTile(this.maze[row][col])
+        if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
+          hunter.clearTile()
+          hunter.setHunterTile(this.maze[row][col])
+          this.drawPath(hunter)
+          done = true
+        } else {
+          count += 1
+          if (count >= 20) {
             done = true
-          } else {
-            hunter.setDirection()
-            count += 1
-            if (count >= 20) {
-              done = true
-            }
           }
         }
       }
@@ -279,21 +260,27 @@ class Game {
   }
 
   hunt () {
-    for (let i = 0; i < this.hunters.length; i++) {
-      console.log('hunting', i)
-      const hunter = this.hunters[i]
-      this.dijkstrasSolver(hunter.tile)
-      if (this.player.dist < Infinity) { // if path exists
-        let next = this.player.prev
-        let curr = this.player
-
-        while (next !== hunter.tile && next !== null) { // run path backwards to find next move
-          curr = next
-          next = curr.prev
+    if (state.playing()) {
+      console.log('Moving to ', this.player.row, this.player.col)
+      this.dijkstrasSolver(this.player)
+      for (let i = 0; i < this.hunters.length; i++) {
+        const hunter = this.hunters[i]
+        if (hunter.tile.dist < Infinity && hunter.tile.dist > 0) { // if path exists
+          const next = hunter.tile.prev
+          if (next !== null && (next.fill !== 'wall' && next.fill !== 'hunter')) {
+            hunter.clearTile()
+            hunter.setHunterTile(next)
+            if (hunter.tile === this.player) {
+              console.log('hunted')
+            }
+          } else {
+            // console.log('path failed', i)
+            this.moveHunterRandom(hunter)
+          }
+        } else {
+          // console.log('error', i, hunter.tile.dist)
+          hunter.setHunterTile(hunter.tile)
         }
-        console.log('moving', i)
-        hunter.clearTile()
-        hunter.setHunterTile(curr)
       }
     }
   }
