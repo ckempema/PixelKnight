@@ -31,7 +31,6 @@ class Game {
     this.xSize = size + 2
     this.ySize = size + 2
     this.maze = []
-    this.initBoard()
   }
 
   initBoard () {
@@ -46,6 +45,7 @@ class Game {
 
     this.start = this.maze[this.randPoint()][this.randPoint()]
     this.finish = this.maze[this.randPoint()][this.randPoint()]
+    this.start.setFill('player')
     this.player = this.start
     this.player.setFill('player')
     this.finish.setFill('finish')
@@ -64,7 +64,7 @@ class Game {
       const rowHTML = `<ol id=row-${row} class="row"> </ol>`
       $(`#game-board`).append(rowHTML)
       for (let col = 0; col < this.xSize; col++) {
-        const tileHTML = this.maze[row][col].renderHTML()
+        const tileHTML = this.maze[row][col].constructHTML()
         $(`#row-${row}`).append(tileHTML)
       }
     }
@@ -108,17 +108,17 @@ class Game {
       }
     }
 
-    if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
-      console.error('ERROR: Maze Generation, no path exists')
-      reset += 1
-      if (reset >= 10) {
-        throw new Error()
-      } else {
-        this.generatePseudoPrimMaze()
-      }
-    } else {
-      reset = 0
-    }
+    // if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
+    //   console.error('ERROR: Maze Generation, no path exists')
+    //   reset += 1
+    //   if (reset >= 10) {
+    //     throw new Error()
+    //   } else {
+    //     this.generatePseudoPrimMaze()
+    //   }
+    // } else {
+    //   reset = 0
+    // }
   }
 
   dijkstrasSolver (start = this.start) {
@@ -228,22 +228,7 @@ class Game {
     }
   }
 
-  drawKey () {
-    const keySrc = '../../../public/key.png'
-    const test = (
-      `<img src="${keySrc}" alt="Key" class="sprite">`
-    )
-    const row = this.randPoint()
-    const col = this.randPoint()
-    $(`#game-box-${row}-${col}`).append(test)
-    console.log('Key drawn')
-  }
-
   moveHunterRandom () {
-    const hunterSrc = '../../../public/hunter.png'
-    const img = (
-      `<img src="${hunterSrc}" alt="Key" class="sprite">`
-    )
     let done = false
     let count = 0
     if (state.playing()) {
@@ -255,7 +240,6 @@ class Game {
           this.hunter.setFill('empty')
           $(`#${this.hunter.id}`).html('') // remove image
           this.hunter = this.maze[row][col]
-          $(`#${this.hunter.id}`).append(img)
           done = true
         } else {
           count += 1

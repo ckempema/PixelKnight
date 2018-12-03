@@ -9,9 +9,9 @@ const createGame = () => {
   store.game = new Game(store.gameSize)
   state.setGameState(0) // set game state to playing
   store.game.generatePseudoPrimMaze(3)
-  store.game.renderBoard()
-
-  store.game.drawKey()
+  setTimeout(() => {
+    store.game.renderBoard()
+  }, 1000)
 
   setInterval(() => {
     store.game.moveHunterRandom()

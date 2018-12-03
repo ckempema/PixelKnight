@@ -1,7 +1,9 @@
 'use strict'
 
 const store = require('../store.js')
-const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter']
+const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key']
+
+const IMAGED = ['player', 'hunter', 'key']
 
 class Tile {
   constructor (row, col) {
@@ -14,10 +16,19 @@ class Tile {
     this.prev = null
   }
 
-  renderHTML () {
-    const tileHTML = (`
-      <div id=${this.id} class="game-tile ${this.fill}"></div>
+  constructHTML () {
+    let tileHTML
+    if (IMAGED.includes(this.fill)) {
+      tileHTML = (`
+        <div id=${this.id} class="game-tile ${this.fill}">
+          <img src="../../../public/${this.fill}.png" alt="Key" class="sprite">
+        </div>
       `)
+    } else {
+      tileHTML = (`
+        <div id=${this.id} class="game-tile ${this.fill}"></div>
+      `)
+    }
     return tileHTML
   }
 
@@ -32,8 +43,19 @@ class Tile {
 
   updateRender () {
     $(`#${this.id}`).removeClass()
-    $(`#${this.id}`).addClass('game-tile')
-    $(`#${this.id}`).addClass(this.fill)
+    if (IMAGED.includes(this.fill)) {
+      const img = (
+        `<img src="../../../public/${this.fill}.png" alt="Key" class="sprite">`
+      )
+      console.log(this.fill, this.row, this.col)
+      $(`#${this.id}`).html(img)
+      $(`#${this.id}`).addClass('game-tile')
+      $(`#${this.id}`).addClass('sprite')
+    } else {
+      $(`#${this.id}`).addClass('game-tile')
+      $(`#${this.id}`).addClass(this.fill)
+      $(`#${this.id}`).html('')
+    }
   }
 }
 
