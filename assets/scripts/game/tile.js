@@ -3,12 +3,12 @@
 const store = require('../store.js')
 const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key', 'coin']
 
-const IMAGED = ['player', 'hunter','key', 'coin', 'finish']
+const IMAGED = ['player', 'hunter', 'key', 'coin', 'finish']
 
 class Tile {
   constructor (row, col) {
     this.fill = 'wall'
-    this.marker =
+    this.savedFill = 'wall'
     this.row = row
     this.col = col
     this.id = `game-box-${row}-${col}`

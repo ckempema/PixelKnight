@@ -6,7 +6,7 @@ const logic = require('./game/logic.js')
 
 $(() => {
   initAuthEventListeners()
-  initKeyPressEvents()
+  initGameEvents()
   state.setAuthState(0)
   logic.createGame()
 })
@@ -37,12 +37,14 @@ const initAuthEventListeners = () => {
   })
 }
 
-const initKeyPressEvents = () => {
-  const reserved = [32, 37, 38, 39, 40]
+const initGameEvents = () => {
+  const reserved = [32, 37, 38, 39, 40] // Keys used for gameplay
   $(document).keydown((key) => {
     if (reserved.includes(key.which)) {
       key.preventDefault()
       logic.handleKeyPress(key.which)
     }
   })
+  $('#regen-game-button').on('click', logic.generateLevel)
+  $('#reset-level-button').on('click', logic.resetLevel)
 }

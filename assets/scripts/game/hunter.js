@@ -1,5 +1,4 @@
 'use strict'
-const Tile = require('./tile.js')
 
 const DIRECTIONS = ['up', 'down', 'left', 'right']
 
@@ -17,11 +16,11 @@ class Hunter {
     this.direction = DIRECTIONS[Math.floor(Math.random() * 4)]
   }
 
-  clearTile () {
+  clearHunter () {
     this.tile.resetFill()
   }
 
-  setHunterTile (tile) {
+  setHunter (tile) {
     this.tile = tile
     this.row = tile.row
     this.col = tile.col

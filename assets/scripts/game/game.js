@@ -5,6 +5,8 @@ const store = require('../store.js')
 
 const Tile = require('./tile.js')
 const Hunter = require('./hunter.js')
+const Player = require('./player.js')
+
 let reset = 0
 
 const ADJACENT = [
@@ -26,39 +28,79 @@ const ALL_ADJ = [
   {row: 1, col: 1}
 ]
 
-// console.log(ADJ)
-
 class Game {
   constructor (size) {
     this.xSize = size + 2
     this.ySize = size + 2
+    this.numHunters = 3
     this.maze = []
+    this.generateLocations()
+    this.player = new Player()
   }
 
-  initBoard () {
+  resetBoard () {
     this.maze = []
-    for (let row = 0; row < this.ySize + 2; row++) {
+    for (let row = 0; row < this.ySize; row++) {
       const rowBin = []
-      for (let col = 0; col < this.xSize + 2; col++) {
+      for (let col = 0; col < this.xSize; col++) {
         rowBin.push(new Tile(row, col))
       }
       this.maze.push(rowBin)
     }
+  }
 
-    this.start = this.maze[this.randPoint()][this.randPoint()]
-    this.finish = this.maze[this.randPoint()][this.randPoint()]
+  generateLocations () {
+    this.locations = {}
+    // startPoint
+    if (this.finish === null || this.finish === undefined) {
+      const row = this.randPoint()
+      const col = this.randPoint()
+      this.locations.start = {}
+      this.locations.start = {row: row, col: col}
+    } else {
+      this.locations.start = {row: this.finish.row, col: this.finish.col}
+    }
+    // finishPoint
+    const row = this.randPoint()
+    const col = this.randPoint()
+    this.locations.finish = {row: row, col: col}
+    // Hunters
+    for (let i = 0; i < this.numHunters; i++) {
+      const row = this.randPoint()
+      const col = this.randPoint()
+      this.locations[`hunter-${i}`] = {row: row, col: col}
+    }
+    // Hunters
+  }
+
+  initPieces () {
+    this.start = this.maze[this.locations.start.row][this.locations.start.col]
+    this.finish = this.maze[this.locations.finish.row][this.locations.finish.col]
+
     this.start.setFill('start', true)
-    this.player = this.start
-    this.player.setFill('player', false)
     this.finish.setFill('finish', true)
+
+    this.player.setPlayer(this.start)
+    // this.player.setFill('player', false) // Dont save player fill in start
+
     this.hunters = []
     for (let i = 0; i < 3; i++) {
-      this.hunters.push(new Hunter(this.maze[this.randPoint()][this.randPoint()]))
+      const row = this.locations[`hunter-${i}`].row
+      const col = this.locations[`hunter-${i}`].col
+      this.hunters.push(new Hunter(this.maze[row][col]))
     }
   }
 
   randPoint () {
     return 1 + Math.floor(Math.random() * 30)
+  }
+
+  clearBoard() {
+    for (let row = 0; row < this.ySize; row++) {
+      for (let col = 0; col < this.xSize; col++) {
+        this.maze[row][col].resetFill()
+      }
+    }
   }
 
   renderBoard () {
@@ -75,7 +117,8 @@ class Game {
   }
 
   generatePseudoPrimMaze (weight) {
-    this.initBoard()
+    this.resetBoard()
+    this.initPieces()
 
     let walls = []
     const addWalls = (row, col) => {
@@ -175,8 +218,8 @@ class Game {
 
   drawPath () {
     // // FIXME: Depreciated, no longer working?
-    if (this.player.dist < Infinity) {
-      let curr = this.player.prev
+    if (this.player.tile.dist < Infinity) {
+      let curr = this.player.tile.prev
       while (curr.prev !== null && curr !== this.start) {
         curr.setFill('path')
         curr = curr.prev
@@ -222,21 +265,20 @@ class Game {
     if (state.playing()) {
       const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
       if (test.inBounds && test.fill !== 'wall') {
-        this.player.resetFill()
-        this.player = test
-        this.player.setFill('player', false)
+        this.player.clearPlayerIcon()
+        this.player.setPlayer(test)
       } else {
         console.error('Move not valid')
       }
     }
 
-    if (this.player === this.finish) {
+    if (this.player.tile === this.finish) {
       console.error('Game Over')
       state.setGameState(2)
     }
   }
 
-  moveHunterRandom (hunter) {
+  search (hunter) {
     if (state.playing()) {
       let done = false
       let count = 0
@@ -246,8 +288,8 @@ class Game {
         const col = hunter.col + mod.col
 
         if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
-          hunter.clearTile()
-          hunter.setHunterTile(this.maze[row][col])
+          hunter.clearHunter()
+          hunter.setHunter(this.maze[row][col])
           done = true
         } else {
           count += 1
@@ -262,25 +304,25 @@ class Game {
   hunt () {
     if (state.playing()) {
       console.log('Moving to ', this.player.row, this.player.col)
-      this.dijkstrasSolver(this.player)
+      this.dijkstrasSolver(this.player.tile)
       for (let i = 0; i < this.hunters.length; i++) {
         const hunter = this.hunters[i]
         if (hunter.tile.dist < Infinity && hunter.tile.dist > 0) { // if path exists
           const next = hunter.tile.prev
           if (next !== null && (next.fill !== 'wall' && next.fill !== 'hunter')) {
-            hunter.clearTile()
-            hunter.setHunterTile(next)
-            if (hunter.tile === this.player) {
+            hunter.clearHunter()
+            hunter.setHunter(next)
+            if (hunter.tile === this.player.tile) {
               console.log('hunted')
               state.setGameState(2)
             }
           } else {
             // console.log('path failed', i)
-            this.moveHunterRandom(hunter)
+            this.search(hunter)
           }
         } else {
           // console.log('error', i, hunter.tile.dist)
-          hunter.setHunterTile(hunter.tile)
+          hunter.setHunter(hunter.tile)
         }
       }
     }

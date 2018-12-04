@@ -37,12 +37,14 @@ const resetFormFields = () => {
 const setGameState = (newState) => {
   switch (newState) {
     case 0: // Playing
-      if(current.gameState !== 2)  { // if game is not over then unpause
+      if (current.gameState !== 2) { // if game is not over then unpause
         current.gameState = 0
+      } else {
+        console.log('Unable to unpause finished game')
       }
       break
 
-    case 1: // Paused
+    case 1: // Paused (same state for both user pause and game pause)
       current.gameState = 1
       break
 
