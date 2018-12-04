@@ -1,13 +1,14 @@
 'use strict'
 
 const store = require('../store.js')
-const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key']
+const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key', 'coin']
 
-const IMAGED = ['player', 'hunter','key']
+const IMAGED = ['player', 'hunter','key', 'coin']
 
 class Tile {
   constructor (row, col) {
     this.fill = 'wall'
+    this.marker =
     this.row = row
     this.col = col
     this.id = `game-box-${row}-${col}`

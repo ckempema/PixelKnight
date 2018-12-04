@@ -9,7 +9,7 @@ const createGame = () => {
   store.gameSize = 30 // Only change gameSize with this variable
   store.game = new Game(store.gameSize)
   // state.setGameState(0) // set game state to playing
-  store.game.generatePseudoPrimMaze(6)
+  store.game.generatePseudoPrimMaze(4)
   store.game.renderBoard()
 
   setInterval(() => {

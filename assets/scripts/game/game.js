@@ -112,17 +112,17 @@ class Game {
       }
     }
 
-    // if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
-    //   console.error('ERROR: Maze Generation, no path exists')
-    //   reset += 1
-    //   if (reset >= 10) {
-    //     throw new Error()
-    //   } else {
-    //     this.generatePseudoPrimMaze()
-    //   }
-    // } else {
-    //   reset = 0
-    // }
+    if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
+      console.error('ERROR: Maze Generation, no path exists')
+      reset += 1
+      if (reset >= 10) {
+        throw new Error()
+      } else {
+        this.generatePseudoPrimMaze()
+      }
+    } else {
+      reset = 0
+    }
   }
 
   dijkstrasSolver (startPoint) {
@@ -221,7 +221,7 @@ class Game {
     if (state.playing()) {
       const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
       if (test.inBounds && test.fill !== 'wall') {
-        this.player.setFill('path')
+        this.player.setFill('empty')
         this.player = test
         this.player.setFill('player')
       } else {
@@ -272,6 +272,7 @@ class Game {
             hunter.setHunterTile(next)
             if (hunter.tile === this.player) {
               console.log('hunted')
+              state.setGameState(2)
             }
           } else {
             // console.log('path failed', i)
