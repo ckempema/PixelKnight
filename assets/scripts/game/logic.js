@@ -8,9 +8,14 @@ const createGame = () => {
   store.gameSize = 30 // Only change gameSize with this variable
   store.game = new Game(store.gameSize)
   generateLevel()
-  setInterval(() => {
-    store.game.hunt(store.game.player)
-  }, 300)
+
+  // setInterval(() => {
+  //   store.game.hunt(store.game.player)
+  // }, 400)
+  //
+  // setInterval(() => {
+  //   store.game.spreadFire()
+  // }, 2000)
 }
 
 const handleKeyPress = (key) => {
@@ -19,8 +24,9 @@ const handleKeyPress = (key) => {
 
 const generateLevel = () => {
   state.setGameState(1)
-  store.game.generateLocations()
-  store.game.generatePseudoPrimMaze(4)
+  store.game.generateDistances()
+  // store.game.generateLocations()
+  // store.game.generatePseudoPrimMaze(4)
   store.game.renderBoard()
 }
 

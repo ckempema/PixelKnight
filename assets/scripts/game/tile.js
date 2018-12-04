@@ -1,7 +1,7 @@
 'use strict'
 
 const store = require('../store.js')
-const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key', 'coin']
+const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key', 'coin', 'fire']
 
 const IMAGED = ['player', 'hunter', 'key', 'coin', 'finish']
 

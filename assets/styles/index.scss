@@ -33,6 +33,10 @@ img {
   width: 20px;
 }
 
+.fire {
+  background-color: $red;
+}
+
 .empty {
   background-color: $gray;
 }
@@ -42,7 +46,7 @@ img {
 }
 
 .start {
-  background-color: $yellow;
+  background-color: $green;
 }
 
 .path {
@@ -54,7 +58,7 @@ img {
 }
 
 .hunter {
-  padding: 2px;
+  padding: 0;
 }
 
 .outerbox {

@@ -34,8 +34,10 @@ class Game {
     this.ySize = size + 2
     this.numHunters = 3
     this.maze = []
+    this.locations = {}
     this.generateLocations()
     this.player = new Player()
+    this.level = 0
   }
 
   resetBoard () {
@@ -49,53 +51,7 @@ class Game {
     }
   }
 
-  generateLocations () {
-    this.locations = {}
-    // startPoint
-    if (this.finish === null || this.finish === undefined) {
-      const row = this.randPoint()
-      const col = this.randPoint()
-      this.locations.start = {}
-      this.locations.start = {row: row, col: col}
-    } else {
-      this.locations.start = {row: this.finish.row, col: this.finish.col}
-    }
-    // finishPoint
-    const row = this.randPoint()
-    const col = this.randPoint()
-    this.locations.finish = {row: row, col: col}
-    // Hunters
-    for (let i = 0; i < this.numHunters; i++) {
-      const row = this.randPoint()
-      const col = this.randPoint()
-      this.locations[`hunter-${i}`] = {row: row, col: col}
-    }
-    // Hunters
-  }
-
-  initPieces () {
-    this.start = this.maze[this.locations.start.row][this.locations.start.col]
-    this.finish = this.maze[this.locations.finish.row][this.locations.finish.col]
-
-    this.start.setFill('start', true)
-    this.finish.setFill('finish', true)
-
-    this.player.setPlayer(this.start)
-    // this.player.setFill('player', false) // Dont save player fill in start
-
-    this.hunters = []
-    for (let i = 0; i < 3; i++) {
-      const row = this.locations[`hunter-${i}`].row
-      const col = this.locations[`hunter-${i}`].col
-      this.hunters.push(new Hunter(this.maze[row][col]))
-    }
-  }
-
-  randPoint () {
-    return 1 + Math.floor(Math.random() * 30)
-  }
-
-  clearBoard() {
+  clearBoard () {
     for (let row = 0; row < this.ySize; row++) {
       for (let col = 0; col < this.xSize; col++) {
         this.maze[row][col].resetFill()
@@ -114,6 +70,107 @@ class Game {
         $(`#row-${row}`).append(tileHTML)
       }
     }
+  }
+
+  setStart () {
+    if (this.finish === null || this.finish === undefined) {
+      const row = this.randPoint()
+      const col = this.randPoint()
+
+      this.locations.start = {row: row, col: col}
+    } else {
+      this.locations.start = {row: this.finish.row, col: this.finish.col}
+    }
+  }
+
+  generateDistances () {
+    this.setStart()
+
+    this.rare = []
+    this.uncommon = []
+    this.common = []
+
+    this.generatePseudoPrimMaze(4)
+    this.dijkstrasSolver(this.start)
+
+    let max = this.maze[1][1].dist
+    let maxNode = this.maze[1][1]
+    for (let row = 1; row < this.ySize - 1; row++) {
+      for (let col = 1; col < this.xSize - 1; col++) {
+        const test = this.maze[row][col]
+        if (test.dist < Infinity && test.fill === 'empty') {
+          if (test.dist >= 30) {
+            this.rare.push(test)
+            test.setFill('fire')
+          } else if (test.dist > 20) {
+            this.uncommon.push(test)
+            test.setFill('path')
+          } else if (test.dist > 10) {
+            this.common.push(test)
+            test.setFill('start')
+          }
+
+          if (test.dist > max) {
+            max = test.dist
+            maxNode = test
+          }
+        }
+      }
+    }
+
+    console.log('maxNode', max, maxNode)
+    maxNode.setFill('hunter')
+
+    const finishPoint = Math.floor(Math.random() * this.rare.length)
+    this.finish = this.rare[finishPoint]
+    this.finish.setFill('finish')
+  }
+
+  generateLocations () {
+    this.locations = {}
+    // startPoint
+    this.setStart()
+    // finishPoint
+    const row = this.randPoint()
+    const col = this.randPoint()
+    this.locations.finish = {row: row, col: col}
+    // Hunters
+    for (let i = 0; i < this.numHunters; i++) {
+      const row = this.randPoint()
+      const col = this.randPoint()
+      this.locations[`hunter-${i}`] = {row: row, col: col}
+    }
+    // Fire
+    const rowFire = this.randPoint()
+    const colFire = this.randPoint()
+
+    this.locations.fire = {row: rowFire, col: colFire}
+  }
+
+  initPieces () {
+    this.start = this.maze[this.locations.start.row][this.locations.start.col]
+    // this.finish = this.maze[this.locations.finish.row][this.locations.finish.col]
+
+    this.start.setFill('start', true)
+    // this.finish.setFill('finish', true)
+
+    this.player.setPlayer(this.start)
+
+    // this.hunters = []
+    // for (let i = 0; i < 3; i++) {
+    //   const row = this.locations[`hunter-${i}`].row
+    //   const col = this.locations[`hunter-${i}`].col
+    //   this.hunters.push(new Hunter(this.maze[row][col]))
+    // }
+    //
+    // const rowFire = this.locations.fire.row
+    // const colFire = this.locations.fire.col
+    // this.fire = [this.maze[rowFire][colFire]]
+    // this.fire[0].setFill('fire', true)
+  }
+
+  randPoint () {
+    return 1 + Math.floor(Math.random() * 30)
   }
 
   generatePseudoPrimMaze (weight) {
@@ -153,18 +210,6 @@ class Game {
         curr.setFill('empty', true)
         addWalls(curr.row, curr.col)
       }
-    }
-
-    if (!this.testPath()) { // recursive retry if no path exists; should never happen but still checking
-      console.error('ERROR: Maze Generation, no path exists')
-      reset += 1
-      if (reset >= 10) {
-        throw new Error()
-      } else {
-        this.generatePseudoPrimMaze()
-      }
-    } else {
-      reset = 0
     }
   }
 
@@ -233,7 +278,6 @@ class Game {
     let mod
     switch (key) {
       case 32: // Space
-        console.log(this.maze)
         // console.log('space')
         if (state.playing()) {
           state.setGameState(1)
@@ -324,6 +368,29 @@ class Game {
           // console.log('error', i, hunter.tile.dist)
           hunter.setHunter(hunter.tile)
         }
+      }
+    }
+  }
+
+  spreadFire () {
+    if (state.playing()) {
+      const add = []
+      for (let i = 0; i < this.fire.length; i++) {
+        const fire = this.fire[i]
+        for (let j = 0; j < ADJACENT.length; j++) {
+          const mod = ADJACENT[j]
+          const test = this.maze[fire.row + mod.row][fire.col + mod.col]
+          if (test.fill === 'empty') {
+            if (Math.random() < 0.5) {
+              add.push(test)
+              test.setFill('fire')
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < add.length; i++) {
+        this.fire.push(add[i])
       }
     }
   }
