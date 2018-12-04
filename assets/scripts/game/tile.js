@@ -3,7 +3,7 @@
 const store = require('../store.js')
 const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'path', 'player', 'hunter', 'key', 'coin']
 
-const IMAGED = ['player', 'hunter','key', 'coin']
+const IMAGED = ['player', 'hunter','key', 'coin', 'finish']
 
 class Tile {
   constructor (row, col) {
@@ -33,13 +33,25 @@ class Tile {
     return tileHTML
   }
 
-  setFill (newFill) {
+  setFill (newFill, save = false) {
     if (ALLOWEDFILLS.includes(newFill)) {
       this.fill = newFill
       this.updateRender()
+      if (save) {
+        this.savedFill = newFill
+      }
     } else {
       console.error('Invalid fill sent to tile.setFill', newFill, `Location X${this.row}, Y${this.col}`) // NOTE: Remove
     }
+  }
+
+  resetFill () {
+    if (this.savedFill !== undefined && this.savedFill !== null) {
+      this.setFill(this.savedFill)
+    } else {
+      this.setFill('empty', true)
+    }
+    this.updateRender()
   }
 
   updateRender () {

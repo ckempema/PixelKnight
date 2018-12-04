@@ -4,6 +4,7 @@ $page-background: #fff;
 $text-color: #000;
 $black: #000;
 $gray: #fff;
+$dark-gray: #444;
 
 body {
   background: $page-background;
@@ -37,15 +38,11 @@ img {
 }
 
 .wall {
-  background-color: $black;
+  background-color: $dark-gray;
 }
 
 .start {
   background-color: $yellow;
-}
-
-.finish {
-  background-color: $red;
 }
 
 .path {

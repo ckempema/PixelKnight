@@ -47,10 +47,10 @@ class Game {
 
     this.start = this.maze[this.randPoint()][this.randPoint()]
     this.finish = this.maze[this.randPoint()][this.randPoint()]
-    this.start.setFill('player')
+    this.start.setFill('start', true)
     this.player = this.start
-    this.player.setFill('player')
-    this.finish.setFill('finish')
+    this.player.setFill('player', false)
+    this.finish.setFill('finish', true)
     this.hunters = []
     for (let i = 0; i < 3; i++) {
       this.hunters.push(new Hunter(this.maze[this.randPoint()][this.randPoint()]))
@@ -107,7 +107,7 @@ class Game {
       }
 
       if (curr.fill === 'wall' && count <= weight) {
-        curr.setFill('empty')
+        curr.setFill('empty', true)
         addWalls(curr.row, curr.col)
       }
     }
@@ -173,9 +173,10 @@ class Game {
     }
   }
 
-  drawPath (tile) {
-    if (tile.dist < Infinity) {
-      let curr = tile.prev
+  drawPath () {
+    // // FIXME: Depreciated, no longer working?
+    if (this.player.dist < Infinity) {
+      let curr = this.player.prev
       while (curr.prev !== null && curr !== this.start) {
         curr.setFill('path')
         curr = curr.prev
@@ -221,9 +222,9 @@ class Game {
     if (state.playing()) {
       const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
       if (test.inBounds && test.fill !== 'wall') {
-        this.player.setFill('empty')
+        this.player.resetFill()
         this.player = test
-        this.player.setFill('player')
+        this.player.setFill('player', false)
       } else {
         console.error('Move not valid')
       }
@@ -247,7 +248,6 @@ class Game {
         if (this.maze[row][col].fill === 'empty' && this.maze[row][col].inBounds) {
           hunter.clearTile()
           hunter.setHunterTile(this.maze[row][col])
-          this.drawPath(hunter)
           done = true
         } else {
           count += 1

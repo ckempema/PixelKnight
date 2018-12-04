@@ -10,7 +10,7 @@ class Hunter {
     this.row = tile.row
     this.col = tile.col
     this.setDirection()
-    this.tile.setFill('hunter')
+    this.tile.setFill('hunter', false)
   }
 
   setDirection () {
@@ -18,15 +18,14 @@ class Hunter {
   }
 
   clearTile () {
-    this.tile.setFill('empty')
-    $(`#${this.tile.id}`).html('') // remove image
+    this.tile.resetFill()
   }
 
   setHunterTile (tile) {
     this.tile = tile
     this.row = tile.row
     this.col = tile.col
-    this.tile.setFill('hunter')
+    this.tile.setFill('hunter', false)
   }
 }
 
