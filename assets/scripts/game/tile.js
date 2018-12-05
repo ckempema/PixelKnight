@@ -12,9 +12,10 @@ class Tile {
     this.row = row
     this.col = col
     this.id = `game-box-${row}-${col}`
-    this.inBounds = this.row > 0 && this.col > 0 && this.row <= store.gameSize && this.col <= store.gameSize
     this.dist = Infinity
     this.prev = null
+
+    this.inBounds = this.row > 0 && this.col > 0 && this.row <= store.gameSize && this.col <= store.gameSize
   }
 
   constructHTML () {

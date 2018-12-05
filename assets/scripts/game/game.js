@@ -30,30 +30,30 @@ const ALL_ADJ = [
 
 class Game {
   constructor (size) {
-    this.xSize = size + 2
-    this.ySize = size + 2
+    this.size = size + 2
     this.numHunters = 3
     this.maze = []
     this.locations = {}
     this.generateLocations()
     this.player = new Player()
     this.level = 0
+    this.difficulty = {}
   }
 
   resetBoard () {
     this.maze = []
-    for (let row = 0; row < this.ySize; row++) {
+    for (let row = 0; row < this.size; row++) {
       const rowBin = []
-      for (let col = 0; col < this.xSize; col++) {
-        rowBin.push(new Tile(row, col))
+      for (let col = 0; col < this.size; col++) {
+        rowBin.push(new Tile(row, col, this.size))
       }
       this.maze.push(rowBin)
     }
   }
 
   clearBoard () {
-    for (let row = 0; row < this.ySize; row++) {
-      for (let col = 0; col < this.xSize; col++) {
+    for (let row = 0; row < this.size; row++) {
+      for (let col = 0; col < this.size; col++) {
         this.maze[row][col].resetFill()
       }
     }
@@ -62,10 +62,10 @@ class Game {
   renderBoard () {
     // Renders the entire game board from scratch
     $('#game-board').html('')
-    for (let row = 0; row < this.ySize; row++) {
+    for (let row = 0; row < this.size; row++) {
       const rowHTML = `<ol id=row-${row} class="row"> </ol>`
       $(`#game-board`).append(rowHTML)
-      for (let col = 0; col < this.xSize; col++) {
+      for (let col = 0; col < this.size; col++) {
         const tileHTML = this.maze[row][col].constructHTML()
         $(`#row-${row}`).append(tileHTML)
       }
@@ -73,9 +73,18 @@ class Game {
   }
 
   setStart () {
+    this.locations = {}
     if (this.finish === null || this.finish === undefined) {
-      const row = this.randPoint()
-      const col = this.randPoint()
+      let done = false
+      let row
+      let col
+      while (!done) {
+        row = this.randPoint()
+        col = this.randPoint()
+        if (this.isEdge(row, col, 5)) {
+          done = true
+        }
+      }
 
       this.locations.start = {row: row, col: col}
     } else {
@@ -83,59 +92,82 @@ class Game {
     }
   }
 
-  generateDistances () {
+  isEdge (row, col, dist) {
+    return row < dist || col < dist || row > this.size - dist || col >= this.size - dist
+  }
+
+  generateDistancesMatrix () {
+    this.resetBoard()
     this.setStart()
 
-    this.rare = []
-    this.uncommon = []
-    this.common = []
+    this.long = []
+    this.medium = []
+    this.short = []
 
     this.generatePseudoPrimMaze(4)
     this.dijkstrasSolver(this.start)
 
     let max = this.maze[1][1].dist
-    let maxNode = this.maze[1][1]
-    for (let row = 1; row < this.ySize - 1; row++) {
-      for (let col = 1; col < this.xSize - 1; col++) {
+    this.maxNode = this.maze[1][1]
+    for (let row = 1; row < this.size - 1; row++) {
+      for (let col = 1; col < this.size - 1; col++) {
         const test = this.maze[row][col]
         if (test.dist < Infinity && test.fill === 'empty') {
           if (test.dist >= 30) {
-            this.rare.push(test)
+            this.long.push(test)
             test.setFill('fire')
           } else if (test.dist > 20) {
-            this.uncommon.push(test)
+            this.medium.push(test)
             test.setFill('path')
           } else if (test.dist > 10) {
-            this.common.push(test)
+            this.short.push(test)
             test.setFill('start')
           }
 
           if (test.dist > max) {
             max = test.dist
-            maxNode = test
+            this.maxNode = test
           }
         }
       }
     }
 
-    console.log('maxNode', max, maxNode)
-    maxNode.setFill('hunter')
-
-    const finishPoint = Math.floor(Math.random() * this.rare.length)
-    this.finish = this.rare[finishPoint]
+    let done = false
+    while (!done) {
+      const finishPoint = Math.floor(Math.random() * this.rare.length)
+      const test = this.rare[finishPoint]
+      if (this.isEdge(test.row, test.col, 5)) {
+        this.finish = this.rare[finishPoint]
+        done = true
+      }
+    }
     this.finish.setFill('finish')
   }
 
   generateLocations () {
-    this.locations = {}
-    // startPoint
-    this.setStart()
+
     // finishPoint
-    const row = this.randPoint()
-    const col = this.randPoint()
-    this.locations.finish = {row: row, col: col}
+    let done = false
+    while (!done) {
+      const finishIdx = Math.floor(Math.random() * this.long.length())
+      const test = this.long[finishIdx]
+      if (this.isEdge(test.row, test.col, 5)) {
+        done = true
+        this.locations.finish = {row: test.row, col: test.color}
+      }
+    }
+
     // Hunters
     for (let i = 0; i < this.numHunters; i++) {
+      const distance = i % 3
+      switch (distance) {
+        case 0:
+          break
+        case 1:
+          break
+        case 2:
+          break
+      }
       const row = this.randPoint()
       const col = this.randPoint()
       this.locations[`hunter-${i}`] = {row: row, col: col}
@@ -216,8 +248,8 @@ class Game {
   dijkstrasSolver (startPoint) {
     const q = []
 
-    for (let row = 1; row < this.ySize - 1; row++) {
-      for (let col = 1; col < this.xSize - 1; col++) {
+    for (let row = 1; row < this.size - 1; row++) {
+      for (let col = 1; col < this.size - 1; col++) {
         if (this.maze[row][col].fill !== 'wall') {
           this.maze[row][col].dist = Infinity
           this.maze[row][col].prev = null
