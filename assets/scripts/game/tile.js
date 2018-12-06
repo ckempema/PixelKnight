@@ -26,7 +26,7 @@ class Tile {
     if (IMAGED.includes(this.fill)) {
       tileHTML = (`
         <div id=${this.id} class="game-tile ${this.fill}">
-          <img src="${config.imgUrl}${this.fill}.png" alt="Key" class="sprite">
+          <img src="${config.imgUrl}/${this.fill}.png" alt="Key" class="sprite">
         </div>
       `)
     } else {
