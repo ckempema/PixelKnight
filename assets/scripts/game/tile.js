@@ -1,6 +1,8 @@
 'use strict'
 
 const store = require('../store.js')
+const config = require('../config-images.js')
+
 const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'lockedFinish', 'path', 'player', 'hunter', 'key', 'coin', 'guard', 'ruby', 'life']
 
 const IMAGED = ['player', 'hunter', 'key', 'coin', 'finish', 'lockedFinish', 'ruby', 'guard', 'life']
@@ -24,7 +26,7 @@ class Tile {
     if (IMAGED.includes(this.fill)) {
       tileHTML = (`
         <div id=${this.id} class="game-tile ${this.fill}">
-          <img src="../../../public/${this.fill}.png" alt="Key" class="sprite">
+          <img src="${config.imgUrl}${this.fill}.png" alt="Key" class="sprite">
         </div>
       `)
     } else {
