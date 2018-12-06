@@ -28,6 +28,10 @@ const setIntervals = () => {
   setInterval(() => {
     store.game.moveGuards()
   }, 500)
+
+  setInterval(() => {
+    store.game.updateStatusBar()
+  }, 100)
 }
 
 const handleKeyPress = (key) => {

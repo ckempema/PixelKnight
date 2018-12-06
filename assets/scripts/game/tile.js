@@ -62,7 +62,7 @@ class Tile {
     $(`#${this.id}`).removeClass()
     if (IMAGED.includes(this.fill)) {
       const img = (
-        `<img src="../../../public/${this.fill}.png" alt="Key" class="sprite">`
+        `<img src="${config.imgUrl}/${this.fill}.png" alt="Key" class="sprite">`
       )
       $(`#${this.id}`).html(img)
       $(`#${this.id}`).addClass('game-tile')
