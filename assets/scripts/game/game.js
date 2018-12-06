@@ -567,7 +567,6 @@ class Game {
           moving = true
         }
       } else {
-        console.error('Move not valid')
         moving = true
       }
     }
@@ -607,11 +606,9 @@ class Game {
             hunter.clearHunter()
             hunter.setHunter(next)
           } else {
-            // console.log('path failed', i)
             this.search(hunter)
           }
         } else {
-          // console.log('error', i, hunter.tile.dist)
           hunter.setHunter(hunter.tile)
         }
 
@@ -712,7 +709,7 @@ class Game {
   }
 
   killPlayer (message) {
-    console.log(message)
+    // console.log(message)
     $('#game-status').html(message)
     if (this.player.lives > 0) {
       state.setGameState(1)
