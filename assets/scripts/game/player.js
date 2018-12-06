@@ -19,6 +19,11 @@ class Player {
   clearPlayerIcon () {
     this.tile.resetFill()
   }
+
+  addScore (added) {
+    this.score += added
+    console.log('SCORE', this.score)
+  }
 }
 
 module.exports = Player

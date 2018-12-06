@@ -1,13 +1,30 @@
 'use strict'
 
 const state = require('../states.js')
-const store = require('../store.js')
 
 const Tile = require('./tile.js')
-const Hunter = require('./hunter.js')
 const Player = require('./player.js')
+const Hunter = require('./hunter.js')
+const Guard = require('./guard.js')
+let moving = true
 
-let reset = 0
+const MECHANICS = {
+  fire: {
+    spreads: 0.6,
+    killsHunter: 0.025,
+    killsGuard: 0.2,
+    killsPlayer: 0.001,
+    damage: 50,
+    moveTime: 600
+  },
+  score: {
+    coin: 50,
+    life: 100,
+    ruby: 500,
+    clean: 2000,
+    level: 2000
+  }
+}
 
 const ADJACENT = [
   {row: -1, col: 0}, // down
@@ -34,10 +51,9 @@ class Game {
     this.numHunters = 3
     this.maze = []
     this.locations = {}
-    this.generateLocations()
     this.player = new Player()
     this.level = 0
-    this.difficulty = {}
+    this.levelMechanics = {}
   }
 
   resetBoard () {
@@ -59,6 +75,19 @@ class Game {
     }
   }
 
+  blankBoard (full) {
+    for (let row = 0; row < this.size; row++) {
+      for (let col = 0; col < this.size; col++) {
+        if (this.maze[row][col] !== this.player.tile) {
+          if (full) {
+            this.maze[row][col].onFire = false
+          }
+          this.maze[row][col].setFill('wall', false)
+        }
+      }
+    }
+  }
+
   renderBoard () {
     // Renders the entire game board from scratch
     $('#game-board').html('')
@@ -68,6 +97,149 @@ class Game {
       for (let col = 0; col < this.size; col++) {
         const tileHTML = this.maze[row][col].constructHTML()
         $(`#row-${row}`).append(tileHTML)
+      }
+    }
+  }
+
+  isEdge (row, col, dist) {
+    return row < dist || col < dist || row > this.size - dist || col >= this.size - dist
+  }
+
+  setlevelMechanics () {
+    const level = this.level
+    const mazeWeight = Math.max(Math.floor(8 - level / 3), 4) // Maze complexity ~3 levels
+    const numGuards = Math.floor(1 + level / 2)
+    const numHunters = Math.floor(0 + level / 4)
+    const numCoins = Math.floor(3 + level / 2)
+    const ruby = Math.random() < 0.5
+    const lockFinish = Math.random() < 0.2
+    const life = Math.random() < 0.3
+    const fire = Math.random() < 0.5
+
+    this.levelMechanics = {
+      modifier: 1 + (0.2 * level),
+      mazeWeight: mazeWeight,
+      numHunters: numHunters,
+      numGuards: numGuards,
+      numCoins: numCoins,
+      generateRuby: ruby,
+      generateLife: life,
+      setFire: fire,
+      lockFinish: lockFinish
+    }
+  }
+
+  generateDistances () {
+    this.resetBoard()
+    this.setStart()
+
+    this.long = []
+    this.medium = []
+    this.short = []
+
+    this.generatePseudoPrimMaze(this.levelMechanics.mazeWeight)
+    this.dijkstrasSolver(this.start)
+
+    let max = this.maze[1][1].dist
+    this.maxNode = this.maze[1][1]
+    for (let row = 1; row < this.size - 1; row++) {
+      for (let col = 1; col < this.size - 1; col++) {
+        const test = this.maze[row][col]
+        if (test.dist < Infinity && test.fill === 'empty') {
+          // count number of neighbors
+          let neighbors = 0
+          for (let i = 0; i < ADJACENT.length; i++) {
+            const mod = ADJACENT[i]
+            const current = this.maze[test.row + mod.row][test.col + mod.col]
+            if (current.fill !== 'wall') {
+              neighbors += 1
+            }
+          }
+          test.neighbors = neighbors
+
+          if (test.dist >= 30) {
+            this.long.push(test)
+            // test.setFill('fire')
+          } else if (test.dist > 20) {
+            this.medium.push(test)
+            // test.setFill('path')
+          } else if (test.dist > 10) {
+            this.short.push(test)
+            // test.setFill('start')
+          }
+
+          if (test.dist > max) {
+            max = test.dist
+            this.maxNode = test
+          }
+        }
+      }
+    }
+
+    const badGeneration = (this.long.length <= 0 ||
+      this.medium.length <= 0 ||
+      this.short.length <= 0)
+    if (badGeneration) {
+      this.generateDistances()
+    }
+  }
+
+  generateLocations () {
+    // finishPoint
+    let done = false
+    while (!done) {
+      const finishIdx = Math.floor(Math.random() * this.long.length)
+      const test = this.long[finishIdx]
+      if (this.isEdge(test.row, test.col, 5)) {
+        this.locations.finish = {row: test.row, col: test.col}
+        this.dijkstrasSolver(test)
+        this.long.splice(finishIdx, 1)
+        done = true
+      }
+    }
+
+    // Coins
+    for (let i = 0; i < this.levelMechanics.numCoins; i++) {
+      const loc = this.looseItemLocation(i % 3)
+      this.locations[`coins-${i}`] = loc
+    }
+    // Hunters
+    for (let i = 0; i < this.levelMechanics.numHunters; i++) {
+      const loc = this.looseItemLocation(i % 3)
+      this.locations[`hunter-${i}`] = loc
+    }
+
+    // Guards
+    for (let i = 0; i < this.levelMechanics.numGuards; i++) {
+      const loc = this.looseItemLocation(i % 3)
+      this.locations[`guard-${i}`] = loc
+    }
+
+    // Key
+    if (this.levelMechanics.lockFinish) {
+      if (!this.strictItemGenerateLocation('key', 8, 10, 4)) {
+        this.levelMechanics.lockFinish = false
+      }
+    }
+
+    // Fire
+    if (this.levelMechanics.setFire) {
+      if (!this.strictItemGenerateLocation('fire', 4, 10, 4)) {
+        this.levelMechanics.setFire = false
+      }
+    }
+
+    // Ruby
+    if (this.levelMechanics.generateRuby) {
+      if (!this.strictItemGenerateLocation('ruby', 15, 10, 1)) {
+        this.levelMechanics.generateRuby = false
+      }
+    }
+
+    // Lives
+    if (this.levelMechanics.generateLife) {
+      if (!this.strictItemGenerateLocation('life', 15, 15, 1)) {
+        this.levelMechanics.generateLife = false
       }
     }
   }
@@ -92,113 +264,121 @@ class Game {
     }
   }
 
-  isEdge (row, col, dist) {
-    return row < dist || col < dist || row > this.size - dist || col >= this.size - dist
+  looseItemLocation (distance) {
+    let idx
+    let loc
+    switch (distance) {
+      case 0:
+        idx = Math.floor(Math.random() * this.long.length)
+        loc = {row: this.long[idx].row, col: this.long[idx].col}
+        this.long.splice(idx, 1)
+        break
+      case 1:
+        idx = Math.floor(Math.random() * this.medium.length)
+        loc = {row: this.medium[idx].row, col: this.medium[idx].col}
+        this.medium.splice(idx, 1)
+        break
+      case 2:
+        idx = Math.floor(Math.random() * this.short.length)
+        loc = {row: this.short[idx].row, col: this.short[idx].col}
+        this.short.splice(idx, 1)
+        break
+    }
+    return loc
   }
 
-  generateDistancesMatrix () {
-    this.resetBoard()
-    this.setStart()
-
-    this.long = []
-    this.medium = []
-    this.short = []
-
-    this.generatePseudoPrimMaze(4)
-    this.dijkstrasSolver(this.start)
-
-    let max = this.maze[1][1].dist
-    this.maxNode = this.maze[1][1]
-    for (let row = 1; row < this.size - 1; row++) {
-      for (let col = 1; col < this.size - 1; col++) {
-        const test = this.maze[row][col]
-        if (test.dist < Infinity && test.fill === 'empty') {
-          if (test.dist >= 30) {
-            this.long.push(test)
-            test.setFill('fire')
-          } else if (test.dist > 20) {
-            this.medium.push(test)
-            test.setFill('path')
-          } else if (test.dist > 10) {
-            this.short.push(test)
-            test.setFill('start')
-          }
-
-          if (test.dist > max) {
-            max = test.dist
-            this.maxNode = test
-          }
+  strictItemGenerateLocation (item, edge, distance, neighbors) {
+    this.dijkstrasSolver(this.maze[this.locations.finish.row][this.locations.finish.col])
+    let count = 0
+    while (true) {
+      const idx = Math.floor(Math.random() * this.long.length)
+      const test = this.long[idx]
+      const valid = (this.isEdge(test.row, test.col, edge) &&
+        test.dist >= distance &&
+        test.neighbors <= neighbors
+      )
+      if (valid) {
+        this.locations[`${item}Spawn`] = {row: test.row, col: test.col}
+        this.long.splice(idx, 1)
+        return true
+      } else {
+        count += 1
+        if (count > this.long.length * 2) {
+          this.levelMechanics.generateRuby = false
+          return false
         }
       }
     }
-
-    let done = false
-    while (!done) {
-      const finishPoint = Math.floor(Math.random() * this.rare.length)
-      const test = this.rare[finishPoint]
-      if (this.isEdge(test.row, test.col, 5)) {
-        this.finish = this.rare[finishPoint]
-        done = true
-      }
-    }
-    this.finish.setFill('finish')
-  }
-
-  generateLocations () {
-
-    // finishPoint
-    let done = false
-    while (!done) {
-      const finishIdx = Math.floor(Math.random() * this.long.length())
-      const test = this.long[finishIdx]
-      if (this.isEdge(test.row, test.col, 5)) {
-        done = true
-        this.locations.finish = {row: test.row, col: test.color}
-      }
-    }
-
-    // Hunters
-    for (let i = 0; i < this.numHunters; i++) {
-      const distance = i % 3
-      switch (distance) {
-        case 0:
-          break
-        case 1:
-          break
-        case 2:
-          break
-      }
-      const row = this.randPoint()
-      const col = this.randPoint()
-      this.locations[`hunter-${i}`] = {row: row, col: col}
-    }
-    // Fire
-    const rowFire = this.randPoint()
-    const colFire = this.randPoint()
-
-    this.locations.fire = {row: rowFire, col: colFire}
   }
 
   initPieces () {
     this.start = this.maze[this.locations.start.row][this.locations.start.col]
-    // this.finish = this.maze[this.locations.finish.row][this.locations.finish.col]
+    this.finish = this.maze[this.locations.finish.row][this.locations.finish.col]
 
+    this.finish.setFill('finish', true)
     this.start.setFill('start', true)
-    // this.finish.setFill('finish', true)
-
     this.player.setPlayer(this.start)
 
-    // this.hunters = []
-    // for (let i = 0; i < 3; i++) {
-    //   const row = this.locations[`hunter-${i}`].row
-    //   const col = this.locations[`hunter-${i}`].col
-    //   this.hunters.push(new Hunter(this.maze[row][col]))
-    // }
-    //
-    // const rowFire = this.locations.fire.row
-    // const colFire = this.locations.fire.col
-    // this.fire = [this.maze[rowFire][colFire]]
-    // this.fire[0].setFill('fire', true)
+    this.playableObjects = 0 // Counter to see if board is cleared
+
+    // Coin Initilization
+    for (let i = 0; i < this.levelMechanics.numCoins; i++) {
+      const row = this.locations[`coins-${i}`].row
+      const col = this.locations[`coins-${i}`].col
+      this.maze[row][col].setFill('coin', true)
+      this.playableObjects += 1
+    }
+
+    // Hunter Initializations
+    this.hunters = []
+    for (let i = 0; i < this.levelMechanics.numHunters; i++) {
+      const row = this.locations[`hunter-${i}`].row
+      const col = this.locations[`hunter-${i}`].col
+      this.hunters.push(new Hunter(this.maze[row][col]))
+    }
+
+    // Guard Generation
+    this.guards = []
+    for (let i = 0; i < this.levelMechanics.numGuards; i++) {
+      const row = this.locations[`guard-${i}`].row
+      const col = this.locations[`guard-${i}`].col
+      this.guards.push(new Guard(this.maze[row][col]))
+    }
+
+    // Key Initilization
+    if (this.levelMechanics.lockFinish) {
+      const row = this.locations.keySpawn.row
+      const col = this.locations.keySpawn.col
+      this.maze[row][col].setFill('key', true)
+      this.finish.setFill('lockedFinish', true)
+      this.playableObjects += 1
+    }
+    // Fire Initialization
+    if (this.levelMechanics.setFire) {
+      this.fire = []
+      const rowFire = this.locations.fireSpawn.row
+      const colFire = this.locations.fireSpawn.col
+      const spark = this.maze[rowFire][colFire]
+      spark.lightFire()
+      $(`#${spark.id}`).addClass('fire')
+      this.fire.push(spark)
+    }
+
+    // Ruby Initialization
+    if (this.levelMechanics.generateRuby) {
+      const row = this.locations.rubySpawn.row
+      const col = this.locations.rubySpawn.col
+      this.maze[row][col].setFill('ruby', true)
+      this.playableObjects += 1
+    }
+
+    // Life Generation
+    if (this.levelMechanics.generateLife) {
+      const row = this.locations.lifeSpawn.row
+      const col = this.locations.lifeSpawn.col
+      this.maze[row][col].setFill('life', true)
+      this.playableObjects += 1
+    }
   }
 
   randPoint () {
@@ -207,7 +387,7 @@ class Game {
 
   generatePseudoPrimMaze (weight) {
     this.resetBoard()
-    this.initPieces()
+    this.start = this.maze[this.locations.start.row][this.locations.start.col]
 
     let walls = []
     const addWalls = (row, col) => {
@@ -284,25 +464,11 @@ class Game {
 
   testPath (end = this.finish) {
     this.dijkstrasSolver(this.start)
-    store.lastPath = 'testPath'
     if (end.dist < Infinity) {
       // this.drawPath()
       return true
     } else {
       return false
-    }
-  }
-
-  drawPath () {
-    // // FIXME: Depreciated, no longer working?
-    if (this.player.tile.dist < Infinity) {
-      let curr = this.player.tile.prev
-      while (curr.prev !== null && curr !== this.start) {
-        curr.setFill('path')
-        curr = curr.prev
-      }
-    } else {
-      console.log('Invalid Path') // NOTE: Fix console.log
     }
   }
 
@@ -338,19 +504,70 @@ class Game {
       default:
         console.error('Unsupported key event passed')
     }
-    if (state.playing()) {
+    if (state.playing() && moving) {
+      moving = false
       const test = this.maze[this.player.row + mod.row][this.player.col + mod.col]
       if (test.inBounds && test.fill !== 'wall') {
-        this.player.clearPlayerIcon()
-        this.player.setPlayer(test)
+        let value = 0
+        switch (test.fill) {
+          case 'hunter':
+            this.killPlayer('You were killed attacking a hunter')
+            break
+          case 'guard':
+            this.killPlayer('You were killed attacking a guard')
+            break
+          case 'key':
+            this.finish.setFill('finish')
+            test.setFill('empty', true)
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+            break
+          case 'finish':
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+            this.finishLevel()
+            break
+          case 'coin':
+            value = Math.floor(MECHANICS.score.coin * this.levelMechanics.modifier)
+            this.player.addScore(value)
+            test.setFill('empty', true)
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+            break
+          case 'ruby':
+            value = Math.floor(MECHANICS.score.ruby * this.levelMechanics.modifier)
+            this.player.addScore(value)
+            test.setFill('empty', true)
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+            break
+          case 'life':
+            this.player.lives += 1
+            value = Math.floor(MECHANICS.score.ruby * this.levelMechanics.modifier)
+            this.player.addScore(value)
+            test.setFill('empty', true)
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+            break
+          default:
+            this.player.clearPlayerIcon()
+            this.player.setPlayer(test)
+        }
+
+        if (this.player.tile.onFire) {
+          if (Math.random() < MECHANICS.fire.killsPlayer) {
+            this.killPlayer('You were killed to death in the flames')
+          }
+          setTimeout(() => {
+            moving = true
+          }, MECHANICS.fire.moveTime)
+        } else {
+          moving = true
+        }
       } else {
         console.error('Move not valid')
+        moving = true
       }
-    }
-
-    if (this.player.tile === this.finish) {
-      console.error('Game Over')
-      state.setGameState(2)
     }
   }
 
@@ -379,7 +596,6 @@ class Game {
 
   hunt () {
     if (state.playing()) {
-      console.log('Moving to ', this.player.row, this.player.col)
       this.dijkstrasSolver(this.player.tile)
       for (let i = 0; i < this.hunters.length; i++) {
         const hunter = this.hunters[i]
@@ -388,10 +604,6 @@ class Game {
           if (next !== null && (next.fill !== 'wall' && next.fill !== 'hunter')) {
             hunter.clearHunter()
             hunter.setHunter(next)
-            if (hunter.tile === this.player.tile) {
-              console.log('hunted')
-              state.setGameState(2)
-            }
           } else {
             // console.log('path failed', i)
             this.search(hunter)
@@ -400,22 +612,68 @@ class Game {
           // console.log('error', i, hunter.tile.dist)
           hunter.setHunter(hunter.tile)
         }
+
+        if (hunter.tile === this.player.tile) {
+          this.killPlayer(`You were skewered by Hunter ${i}`)
+        }
+
+        if (hunter.tile.onFire) {
+          if (Math.random() < MECHANICS.fire.killsHunter) {
+            hunter.clearHunter()
+            this.hunters.splice(i, 1)
+          }
+        }
+      }
+    }
+  }
+
+  moveGuards () {
+    if (state.playing()) {
+      for (let i = 0; i < this.guards.length; i++) {
+        let loopPreventer = 0
+        const guard = this.guards[i]
+        let done = false
+        while (!done) {
+          const mod = ADJACENT[Math.floor(Math.random() * ADJACENT.length)]
+          const next = this.maze[guard.row + mod.row][guard.col + mod.col]
+          if (next.fill !== 'wall' && next.fill !== 'hunter' && next.fill !== 'guard') {
+            guard.clearGuard()
+            guard.setGuard(next)
+            done = true
+          } else {
+            loopPreventer += 1
+            if (loopPreventer > 20) {
+              done = true
+            }
+          }
+        }
+
+        if (guard.tile === this.player.tile) {
+          this.killPlayer(`You were crushed by Guard ${i}`)
+        }
+
+        if (guard.tile.onFire) {
+          if (Math.random() < MECHANICS.fire.killsGuard) {
+            this.guards.splice(i, 1)
+            guard.clearGuard()
+          }
+        }
       }
     }
   }
 
   spreadFire () {
-    if (state.playing()) {
+    if (state.playing() && this.levelMechanics.setFire) {
       const add = []
       for (let i = 0; i < this.fire.length; i++) {
         const fire = this.fire[i]
         for (let j = 0; j < ADJACENT.length; j++) {
           const mod = ADJACENT[j]
           const test = this.maze[fire.row + mod.row][fire.col + mod.col]
-          if (test.fill === 'empty') {
-            if (Math.random() < 0.5) {
+          if (test.fill !== 'wall' && !test.onFire) {
+            if (Math.random() < MECHANICS.fire.spreads) {
+              test.lightFire()
               add.push(test)
-              test.setFill('fire')
             }
           }
         }
@@ -424,6 +682,44 @@ class Game {
       for (let i = 0; i < add.length; i++) {
         this.fire.push(add[i])
       }
+    }
+  }
+
+  generateLevel () {
+    state.setGameState(1)
+    setTimeout(() => {
+      this.setlevelMechanics()
+      this.generateDistances()
+      this.generateLocations()
+      this.initPieces()
+      this.renderBoard()
+      state.setGameState(0)
+    }, 3000)
+  }
+
+  finishLevel () {
+    // Add level finish scores
+    this.player.addScore(Math.floor(this.levelMechanics.modifier * MECHANICS.score.level))
+    if (this.playableObjects <= 0) { // Cleared Board
+      this.player.addScore(Math.floor(this.levelMechanics.modifier * MECHANICS.score.clean))
+    }
+
+    // Hide the board
+    this.blankBoard(false)
+    this.level += 1
+    this.generateLevel()
+  }
+
+  killPlayer (message) {
+    console.log(message)
+    if (this.player.lives > 0) {
+      state.setGameState(1)
+      this.blankBoard(false)
+      this.player.lives -= 1
+      this.generateLevel()
+    } else {
+      this.blankBoard(true)
+      this.setGameState(2)
     }
   }
 }

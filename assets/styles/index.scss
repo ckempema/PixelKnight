@@ -26,15 +26,20 @@ img {
   padding: 0;
 }
 
+.outerbox {
+  //border: .5px solid $black;
+
+  justify-content: center;
+  margin: auto;
+  min-height: 642px;
+  min-width: 642px;
+}
+
 .game-tile {
   // border: .5px solid $black;
   display: inline-block;
   height: 20px;
   width: 20px;
-}
-
-.fire {
-  background-color: $red;
 }
 
 .empty {
@@ -45,27 +50,16 @@ img {
   background-color: $dark-gray;
 }
 
-.start {
+.life {
   background-color: $green;
 }
 
-.path {
-  background-color: $blue;
-}
-
 .sprite {
-  background-color: $gray;
-}
-
-.hunter {
+  // background-color: $gray;
+  margin: 0;
   padding: 0;
 }
 
-.outerbox {
-  //border: .5px solid $black;
-
-  justify-content: center;
-  margin: auto;
-  min-height: 642px;
-  min-width: 642px;
+.fire {
+  background-color: $red;
 }

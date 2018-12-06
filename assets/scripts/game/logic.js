@@ -3,19 +3,30 @@
 const state = require('../states.js')
 const store = require('../store.js')
 const Game = require('./game.js')
+let intervals = false
 
 const createGame = () => {
   store.gameSize = 30 // Only change gameSize with this variable
   store.game = new Game(store.gameSize)
   generateLevel()
+  if (!intervals) {
+    setIntervals()
+  }
+}
 
-  // setInterval(() => {
-  //   store.game.hunt(store.game.player)
-  // }, 400)
-  //
-  // setInterval(() => {
-  //   store.game.spreadFire()
-  // }, 2000)
+const setIntervals = () => {
+  intervals = true
+  setInterval(() => {
+    store.game.hunt()
+  }, 500)
+
+  setInterval(() => {
+    store.game.spreadFire()
+  }, 2000)
+
+  setInterval(() => {
+    store.game.moveGuards()
+  }, 500)
 }
 
 const handleKeyPress = (key) => {
@@ -23,16 +34,14 @@ const handleKeyPress = (key) => {
 }
 
 const generateLevel = () => {
+  store.game.generateLevel()
   state.setGameState(1)
-  store.game.generateDistances()
-  // store.game.generateLocations()
-  // store.game.generatePseudoPrimMaze(4)
-  store.game.renderBoard()
 }
 
 const resetLevel = () => {
-  store.game.clearBoard()
-  store.game.initBoard()
+  // store.game.clearBoard()
+  // store.game.initPieces()
+  // state.setGameState(1)
 }
 
 module.exports = {

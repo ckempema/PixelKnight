@@ -45,6 +45,5 @@ const initGameEvents = () => {
       logic.handleKeyPress(key.which)
     }
   })
-  $('#regen-game-button').on('click', logic.generateLevel)
-  $('#reset-level-button').on('click', logic.resetLevel)
+  $('#reset-game-button').on('click', logic.createGame)
 }

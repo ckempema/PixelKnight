@@ -1,20 +1,20 @@
 'use strict'
 
-class Hunter {
+class Guard {
   constructor (tile) {
-    this.setHunter(tile)
+    this.setGuard(tile)
   }
 
-  clearHunter () {
+  clearGuard () {
     this.tile.resetFill()
   }
 
-  setHunter (tile) {
+  setGuard (tile) {
     this.tile = tile
     this.row = tile.row
     this.col = tile.col
-    this.tile.setFill('hunter', false)
+    this.tile.setFill('guard', false)
   }
 }
 
-module.exports = Hunter
+module.exports = Guard
