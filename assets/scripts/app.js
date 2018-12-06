@@ -3,6 +3,7 @@
 const authEvents = require('./auth/events.js')
 const state = require('./states.js')
 const logic = require('./game/logic.js')
+const score = require('./game/scores.js')
 
 $(() => {
   initAuthEventListeners()
@@ -46,4 +47,6 @@ const initGameEvents = () => {
     }
   })
   $('#reset-game-button').on('click', logic.createGame)
+  $('#log-score-button').on('click', score.createScore)
+  $('#get-scores-button').on('click', score.getScores)
 }

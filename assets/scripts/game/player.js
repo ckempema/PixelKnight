@@ -6,7 +6,7 @@ class Player {
     this.row = undefined
     this.col = undefined
     this.score = 0
-    this.lives = 3
+    this.lives = 1
   }
 
   setPlayer (tile) {

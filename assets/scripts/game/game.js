@@ -1,11 +1,13 @@
 'use strict'
 
 const state = require('../states.js')
+const score = require('./scores.js')
 
 const Tile = require('./tile.js')
 const Player = require('./player.js')
 const Hunter = require('./hunter.js')
 const Guard = require('./guard.js')
+
 let moving = true
 
 const MECHANICS = {
@@ -360,7 +362,7 @@ class Game {
       const colFire = this.locations.fireSpawn.col
       const spark = this.maze[rowFire][colFire]
       spark.lightFire()
-      $(`#${spark.id}`).addClass('fire')
+      spark.setFill('wall')
       this.fire.push(spark)
     }
 
@@ -703,7 +705,6 @@ class Game {
     if (this.playableObjects <= 0) { // Cleared Board
       this.player.addScore(Math.floor(this.levelMechanics.modifier * MECHANICS.score.clean))
     }
-
     // Hide the board
     this.blankBoard(false)
     this.level += 1
@@ -712,6 +713,7 @@ class Game {
 
   killPlayer (message) {
     console.log(message)
+    $('#game-status').html(message)
     if (this.player.lives > 0) {
       state.setGameState(1)
       this.blankBoard(false)
@@ -719,7 +721,9 @@ class Game {
       this.generateLevel()
     } else {
       this.blankBoard(true)
-      this.setGameState(2)
+      state.setGameState(2)
+      score.logScore()
+      score.getScores()
     }
   }
 }

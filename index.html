@@ -68,12 +68,17 @@
 
 
       <div id="game" class="cont">
-        <div id="game-board" class="container outerbox"></div>
+        <div id="game-status" class="container wide"></div>
+        <div class=outerbox>
+          <div id="game-board" class="container outerbox"></div>
+        </div>
         <br />
-        <div id="game-messages" class="container"></div>
         <div id="game-buttons" class=container>
           <button id="reset-game-button" class="btn btn-danger navbar-btn"> Reset</button>
+          <button id="log-score-button" class="btn btn-danger navbar-btn"> Log</button>
+          <button id="get-scores-button" class="btn btn-danger navbar-btn"> Get</button>
         </div>
+        <div id='scores' class='container'> </div>
       </div>
     </body>
 </html>

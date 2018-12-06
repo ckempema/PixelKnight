@@ -1,0 +1,30 @@
+<table class="table table-striped table-hover table-sm">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Rank</th>
+      <th scope="col">Score</th>
+      <th scope="col">Level Reached</th>
+      <th scope="col">User</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody id="list-table">
+    {{#each scores as |score|}}
+        <tr>
+          {{#if score.owned}}
+            <td class="matched">{{score.rank}}</td>
+            <td class="matched">{{score.points}}</td>
+            <td class="matched">{{score.level}}</td>
+            <td class="matched">{{score.username}}</td>
+            <td class="matched"><button id="{{score._id}}-delete" class="btn btn-primary">Delete</button> </td>
+          {{else}}
+            <td> {{score.rank}}</td>
+            <td>{{score.points}}</td>
+            <td>{{score.level}}</td>
+            <td>{{score.username}}</td>
+            <td></td>
+          {{/if}}
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

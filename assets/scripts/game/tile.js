@@ -3,7 +3,7 @@
 const store = require('../store.js')
 const ALLOWEDFILLS = ['wall', 'empty', 'start', 'finish', 'lockedFinish', 'path', 'player', 'hunter', 'key', 'coin', 'guard', 'ruby', 'life']
 
-const IMAGED = ['player', 'hunter', 'key', 'coin', 'finish', 'lockedFinish', 'ruby', 'guard']
+const IMAGED = ['player', 'hunter', 'key', 'coin', 'finish', 'lockedFinish', 'ruby', 'guard', 'life']
 
 class Tile {
   constructor (row, col) {

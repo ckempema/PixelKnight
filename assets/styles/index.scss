@@ -1,7 +1,7 @@
 @import '~bootstrap/scss/bootstrap';
 
 $page-background: #fff;
-$text-color: #000;
+$text-color: #444;
 $black: #000;
 $gray: #fff;
 $dark-gray: #444;
@@ -28,10 +28,12 @@ img {
 
 .outerbox {
   //border: .5px solid $black;
-
   justify-content: center;
-  margin: auto;
   min-height: 642px;
+  min-width: 642px;
+}
+
+.wide {
   min-width: 642px;
 }
 
@@ -50,10 +52,6 @@ img {
   background-color: $dark-gray;
 }
 
-.life {
-  background-color: $green;
-}
-
 .sprite {
   // background-color: $gray;
   margin: 0;
@@ -62,4 +60,8 @@ img {
 
 .fire {
   background-color: $red;
+}
+
+.matched {
+  background-color: $blue;
 }
