@@ -482,6 +482,7 @@ class Game {
         // console.log('space')
         if (state.playing()) {
           state.setGameState(1)
+          $('#flavor-text').text('Paused')
           // console.log('paused')
         } else {
           state.setGameState(0)

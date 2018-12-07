@@ -70,7 +70,6 @@ const setGameState = (newState) => {
       break
 
     case 1: // Paused (same state for both user pause and game pause)
-      $('#flavor-text').text(`Level Paused`)
       current.gameState = 1
       break
 
