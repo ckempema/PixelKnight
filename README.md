@@ -4,10 +4,73 @@
 ### Links
 | Item | Link |
 |:----:|:----:|
-| Client Repository  |   |
+| Client Repository  | https://github.com/ckempema/PixelKnight  |
 | Client Deployed   | https://ckempema.github.io/PixelKnight/  |
-| Back End Repository   |   |
+| Back End Repository   |  https://github.com/ckempema/PixelKnight-api |
 | Back End Deployed   | https://afternoon-earth-99855.herokuapp.com |
+
+### What is this?
+  For my final project I made yet another game. This game uses a procedurally generated maze that the can player can solve, dodging enemies and grabbing points along the way. The points are loaded into a comparativly simple back end, and can be retrieved to show a sorted highscores list of the top 100 attempts.
+
+### Technologies Used
+  ##### Front End
+    - HTML/SCSS
+    - JavaScript
+    - Node.js
+    - JQuery
+
+  ##### Back End
+    - Express
+    - MongoDB
+
+  ##### Algorithms
+    - Insertion Sort
+    - Prims Algorithm (Modified)
+    - Dijkstras Algorithm
+
+### Unsolved Problems
+  There are a number of things in the game that could be modified. The weights of the game could be modified endlessly to try and perfect the randomization and the gameplay mechanics. Artistically there is alot to improve, and further gameplay mechanics could be added.
+
+  Here is a list of features to improve `(they're definitely not errors that fail requirements)`
+  - Fire spawn block does not turn red
+  - Performance improvements
+  - Gamepiece location generations more random
+  - More user testing
+  - Improve code readability
+
+  Because of the complexity of the application, there was never enough time or test subjects to really test every possible game board generation. There are a number of unmodeled interactions that could affect the game that I dont know about, so there very well might be more things to fix later on.
+
+### Planning/Problem Solving
+  I started with a very good plan `(see below)`, and then feature creep got in the way. Oftentimes implementing one thing would break everything else and then I would have to go element by element and fix each interaction. This resulted in some redundant code, and a somewhat unreadable codebase because not all handlers are located in the same place. I was able to get everything working, but with more time I can resolve this into a much cleaner looking codebase.
+
+### Front End Documentation Requirements
+#### Embedded Image
+![Embedded Image](./public/capstone-screenshot.png)
+#### Use instructions
+The crud interactions all happen behind the scenes on the front end. Once a player clicks new game they can play with the arrow keys, using space to stop. Once all their lives are expended their score will be logged to the api, and they can view it if it is in the top 100. Users can delete their own scores (if not playing as guest) if they so desire.
+
+### Back End Documentation Requirements
+
+#### User Routes
+| Request Type | Path | Data | Function |
+|:-:|:-:|:-:|:-:|
+| POST | /sign-in  | data: credentials  | Sign In  |
+| PATCH  | /change-password | passwords {old: '', new: ''}  | Change Password  |
+| DELETE  | /sign-out  | Header: Authorization  | Sign Out  |
+
+#### Score Routes
+| Request Type | Path | Data | Function |
+|:-:|:-:|:-:|:-:|
+| POST  | /scores  | token, score | Submit Score |
+| GET   | /scores  | token | Get all scores  |
+| GET   | /scores/{:id} | token  | Get individual score |
+| PATCH | /scores  | token, score  | update (not used in front end) |
+| DELETE | /scores | token, id | Delete Entry |
+
+#### Usage
+The Back end is deployed to heroku, so calls can be made. It is just a data store, all logic for implenting sorting and top scores is implemented in the front end. This should be fixed later, but was not possible in the time avalible.
+
+
 # Planning Documentation:
 ## Wireframe
 ![Wireframe](./public/PixelKnights_Wireframe_V1.png)
