@@ -727,7 +727,9 @@ class Game {
   }
 
   updateStatusBar () {
-    $('#game-status').text(`LEVEL: ${this.level} LIVES: ${this.player.lives}    SCORE:  ${this.player.score}`)
+    if(state.playing) {
+      $('#game-status').text(`LEVEL: ${this.level} LIVES: ${this.player.lives}    SCORE:  ${this.player.score}`)
+    }
   }
 }
 

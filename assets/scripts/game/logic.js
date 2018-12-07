@@ -21,19 +21,27 @@ const createGame = () => {
 const setIntervals = () => {
   intervals = true
   setInterval(() => {
-    store.game.hunt()
+    if (store.game !== undefined) {
+      store.game.hunt()
+    }
   }, 500)
 
   setInterval(() => {
-    store.game.spreadFire()
+    if (store.game !== undefined) {
+      store.game.spreadFire()
+    }
   }, 2000)
 
   setInterval(() => {
-    store.game.moveGuards()
+    if (store.game !== undefined) {
+      store.game.moveGuards()
+    }
   }, 500)
 
   setInterval(() => {
-    store.game.updateStatusBar()
+    if (store.game !== undefined) {
+      store.game.updateStatusBar()
+    }
   }, 100)
 }
 
