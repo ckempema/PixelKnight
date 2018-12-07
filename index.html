@@ -33,7 +33,7 @@
       <div id="sign-in-box" class="container">
         <form id="sign-in-form" class='form-inline'>
           <legend> Sign In </legend>
-          <input id="sign-in-email" type="text" class="form-control"  name="credentials[email]" required placeholder="Email">
+          <input id="sign-in-email" type="text" class="form-control"  name="credentials[email]" required placeholder="Username">
           <input id="sign-in-pwd" name="credentials[password]"type="password" class="form-control" required placeholder="Password">
           <button type="submit"  name="sign-in" class='btn btn-danger'> Sign In
           </button>
@@ -44,7 +44,7 @@
       <div id="sign-up-box" class="container">
         <form id="sign-up-form" class="form-inline">
           <legend> Create User </legend>
-          <input id="sign-up-email" name="credentials[email]" type="text" required placeholder="Email" class="form-control"/>
+          <input id="sign-up-email" name="credentials[email]" type="text" required placeholder="Username" class="form-control"/>
           <input id="sign-up-pwd" name="credentials[password]" type="password" required placeholder="Password" class="form-control"/>
           <input id="sign-up-pwd-conf" name="credentials[password_confirmation]" type="password" placeholder="Confirm Password" class="form-control"/>
           <button type="submit"  name="sign-up" class='btn btn-danger'> Sign Up </button>
@@ -66,18 +66,60 @@
       <div id=auth_messages class="message"></div>
       <br />
 
+      <ul id="instructions" class="container wide">
+        <li>
+          Welcome to PixelKnights. Your goal is to get as far as you can before being overwhelmed.
+        </li>
+
+        <li>
+          There are many pieces in this game. Youll figure them out as you play, so just do that.
+        </li>
+
+        <li>
+          If something is taking along time be patient. Initialization might take a few seconds
+        </li>
+
+        <li>
+          Just reach the portal to advance. If its locked, unlock the lock.
+        </li>
+
+        <li>
+          Along the way there are many scary things that might kill you. Avoid them.
+        </li>
+
+        <li>
+          Fire might only kill you rarely, but it will definitely slow you down. You should probably try to avoid it too.
+        </li>
+
+        <li>
+          Gems get you points. Points get you on the top 100 leaderboard. Your score will not be logged until the game ends, so you have to stick with it to reach the list.
+        </li>
+
+        <li>
+          If you want, (for whatever reason there might be to delete one of your own records?) you can do that. Cuz yeah, requirements. No there is not any CRUD update functionality because it didnt really make sense at the time. Mike agreed, so no update was created. There could be a way to refactor to include update, but MVP.
+        </li>
+
+        <li>
+          Otherwise have fun. Just remember, everything in the game was definitely an intentional gameplay feature and not a known gamebreaking bug. Your bad luck was intentional. And for the record there are fewer bugs in this than anything a major *cough*Bethesda*cough* studio can get away with in their games.
+        </li>
+
+        <li>
+          More information can be found <a href="https://github.com/ckempema/PixelKnight">here</a>
+        </li>
+      </ul>
+
 
       <div id="game" class="cont">
+        <div id="game-buttons" class=container>
+          <button id="new-game-button" class="btn btn-danger navbar-btn"> New Game</button>
+          <button id="get-scores-button" class="btn btn-danger navbar-btn"> Show HighScores (Below)</button>
+        </div>
         <div id="game-status" class="container wide"></div>
         <div class=outerbox>
           <div id="game-board" class="container outerbox"></div>
         </div>
+        <div id="flavor-text" class="container wide"></div>
         <br />
-        <div id="game-buttons" class=container>
-          <button id="reset-game-button" class="btn btn-danger navbar-btn"> Reset</button>
-          <button id="log-score-button" class="btn btn-danger navbar-btn"> Log</button>
-          <button id="get-scores-button" class="btn btn-danger navbar-btn"> Get</button>
-        </div>
         <div id='scores' class='container'> </div>
       </div>
     </body>

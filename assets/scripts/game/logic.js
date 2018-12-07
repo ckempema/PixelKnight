@@ -6,6 +6,9 @@ const Game = require('./game.js')
 let intervals = false
 
 const createGame = () => {
+  if (store.game !== undefined) {
+    store.game.blankBoard(true)
+  }
   store.gameSize = 30 // Only change gameSize with this variable
   store.game = new Game(store.gameSize)
   generateLevel()

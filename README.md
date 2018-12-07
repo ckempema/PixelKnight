@@ -1,5 +1,14 @@
 # PixelKnights
 
+# Required Documentation
+### Links
+| Item | Link |
+|:----:|:----:|
+| Client Repository  |   |
+| Client Deployed   | https://ckempema.github.io/PixelKnight/  |
+| Back End Repository   |   |
+| Back End Deployed   | https://afternoon-earth-99855.herokuapp.com |
+# Planning Documentation:
 ## Wireframe
 ![Wireframe](./public/PixelKnights_Wireframe_V1.png)
 

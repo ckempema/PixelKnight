@@ -4,7 +4,7 @@ const api = require('./scores-api.js')
 const store = require('../store.js')
 const scoresTemplate = require('../templates/scores.handlebars')
 
-const createScore = () => {
+const logScore = () => {
   if (store.game.player.score > 0) {
     const data = {
       score: {
@@ -13,9 +13,8 @@ const createScore = () => {
         username: store.user.email
       }
     }
-    console.log(store.user.email)
     api.logScore(data)
-      .then(console.log)
+      .then(getScores)
       .catch(console.error)
   }
 }
@@ -33,7 +32,6 @@ const onDeleteItem = (id) => {
 }
 
 const showHighScores = (response) => {
-  console.log(response.scores)
   for (let i = 0; i < response.scores.length; i++) {
     if (response.scores[i].username === store.user.email && store.user.email !== 'Guest') {
       response.scores[i].owned = true
@@ -59,7 +57,6 @@ const showHighScores = (response) => {
     scores.push(response.scores[maxIdx])
     response.scores.splice(maxIdx, 1)
   }
-  console.log(scores)
   const scoresHTML = scoresTemplate({scores: scores})
   $(`#scores`).html(scoresHTML)
 
@@ -73,6 +70,6 @@ const showHighScores = (response) => {
 }
 
 module.exports = {
-  createScore,
+  logScore,
   getScores
 }

@@ -22,7 +22,6 @@ class Player {
 
   addScore (added) {
     this.score += added
-    console.log('SCORE', this.score)
   }
 }
 

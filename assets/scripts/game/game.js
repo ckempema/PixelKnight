@@ -13,9 +13,9 @@ let moving = true
 const MECHANICS = {
   fire: {
     spreads: 0.6,
-    killsHunter: 0.025,
-    killsGuard: 0.2,
-    killsPlayer: 0.001,
+    killsHunter: 0.01,
+    killsGuard: 0.1,
+    killsPlayer: 0.005,
     damage: 50,
     moveTime: 600
   },
@@ -362,7 +362,8 @@ class Game {
       const colFire = this.locations.fireSpawn.col
       const spark = this.maze[rowFire][colFire]
       spark.lightFire()
-      spark.setFill('wall')
+      spark.onFire = true
+      spark.updateRender()
       this.fire.push(spark)
     }
 
@@ -513,10 +514,10 @@ class Game {
         let value = 0
         switch (test.fill) {
           case 'hunter':
-            this.killPlayer('You were killed attacking a hunter')
+            this.killPlayer('You were killed attacking a Hunter')
             break
           case 'guard':
-            this.killPlayer('You were killed attacking a guard')
+            this.killPlayer('You were killed attacking a Guard')
             break
           case 'key':
             this.finish.setFill('finish')
@@ -558,7 +559,7 @@ class Game {
 
         if (this.player.tile.onFire) {
           if (Math.random() < MECHANICS.fire.killsPlayer) {
-            this.killPlayer('You were killed to death in the flames')
+            this.killPlayer('You were killed to death in the fire')
           }
           setTimeout(() => {
             moving = true
@@ -613,7 +614,7 @@ class Game {
         }
 
         if (hunter.tile === this.player.tile) {
-          this.killPlayer(`You were skewered by Hunter ${i}`)
+          this.killPlayer(`You were skewered by a Hunter`)
         }
 
         if (hunter.tile.onFire) {
@@ -648,7 +649,7 @@ class Game {
         }
 
         if (guard.tile === this.player.tile) {
-          this.killPlayer(`You were crushed by Guard ${i}`)
+          this.killPlayer(`You were killed by a Guard`)
         }
 
         if (guard.tile.onFire) {
@@ -710,13 +711,14 @@ class Game {
 
   killPlayer (message) {
     // console.log(message)
-    $('#game-status').html(message)
+    $('#flavor-text').text(message)
     if (this.player.lives > 0) {
       state.setGameState(1)
       this.blankBoard(false)
       this.player.lives -= 1
       this.generateLevel()
     } else {
+      $('#flavor-text').text(`GAME OVER: You have been killed to death. Try again?`)
       this.blankBoard(true)
       state.setGameState(2)
       score.logScore()

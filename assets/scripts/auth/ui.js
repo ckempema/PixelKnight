@@ -24,6 +24,17 @@ const signInSuccess = (response) => {
   state.setAuthState(1)
 }
 
+const guestSignInSuccess = (response) => {
+  $('#auth_messages').html('')
+  const userHTML = (`
+    <h5>${response.user.email}<h5>
+    `)
+  $('#user-message').html(userHTML)
+  store.user = response.user
+
+  state.setAuthState(2)
+}
+
 const changePasswordSuccess = (response) => {
   $('#auth_messages').html('')
   const responseHTML = (`
@@ -48,6 +59,7 @@ const failure = (response) => {
 module.exports = {
   signUpSuccess,
   signInSuccess,
+  guestSignInSuccess,
   changePasswordSuccess,
   signOutSuccess,
   failure

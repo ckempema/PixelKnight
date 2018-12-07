@@ -8,8 +8,7 @@ const score = require('./game/scores.js')
 $(() => {
   initAuthEventListeners()
   initGameEvents()
-  state.setAuthState(0)
-  logic.createGame()
+  state.setAuthState(0) // Start logged out
 })
 
 const initAuthEventListeners = () => {
@@ -46,7 +45,6 @@ const initGameEvents = () => {
       logic.handleKeyPress(key.which)
     }
   })
-  $('#reset-game-button').on('click', logic.createGame)
-  $('#log-score-button').on('click', score.createScore)
+  $('#new-game-button').on('click', logic.createGame)
   $('#get-scores-button').on('click', score.getScores)
 }
