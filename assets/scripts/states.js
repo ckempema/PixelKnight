@@ -1,12 +1,14 @@
 'use strict'
 
 const current = {}
+const store = require('./store.js')
 
 const setAuthState = (newState) => {
   resetFormFields()
   switch (newState) {
     case 0: // Initial state, not logged in
       current.authState = 0
+      store.game = undefined
       $('#unauthed-buttons').show()
       $('#instructions').show()
 
